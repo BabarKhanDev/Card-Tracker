@@ -4,13 +4,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 import pickle
+from sklearn import linear_model
 
 from torchvision.models import vgg16, VGG16_Weights
 from torchvision import transforms
 from PIL import Image
 import torch
 
-image_scale = 0.02
+image_scale = 0.2
 
 # Edge Detection
 def detect_edges(img):
@@ -30,51 +31,109 @@ def detect_edges(img):
 
     return img, edges
 
+# Using ransac we get the card corners
 def corners_from_edges(edges):
-    edge_coords = []
+    global image_scale
+    ransac = linear_model.RANSACRegressor()
+
+    # Find the points along the right edge
+    right_col  = []
+    left_col   = []
+    bottom_row = []
+    top_row    = []
 
     for i, row in enumerate(edges):
-        for j, pixel in enumerate(row):
-            if pixel > 100:
-                edge_coords.append((j, i))
+        # Find all white pixel points
+        points = [(i,j) for j, pixel in enumerate(row) if pixel > 200]
+        if len(points) == 0:
+            continue
 
-    # calculate the corners of the image
-    max_x = max(x for x, _ in edge_coords)
-    max_y = max(x for _, x in edge_coords)
-    min_x = min(x for x, _ in edge_coords)
-    min_y = min(x for _, x in edge_coords)
+        # Organise by largest to smallest
+        points.sort(key=lambda x: x[1], reverse=True)   
+        right_col.append(points[0])
+        left_col.append(points[-1])
+    
+    for j, row in enumerate(edges.T):
+        # Find all white pixel points
+        points = [(i,j) for i, pixel in enumerate(row) if pixel > 200]
+        if len(points) == 0:
+            continue
 
-    return max_x, max_y, min_x, min_y
+        # Organise by largest to smallest
+        points.sort(key=lambda x: x[1], reverse=True)   
+        top_row.append(points[0])
+        bottom_row.append(points[-1])
+
+    # Arrange points for each side
+    right_X,  right_y   = np.array([x/image_scale for _, x in right_col ]).reshape(-1, 1), np.array([y/image_scale for y,_ in right_col ]).reshape(-1, 1)
+    left_X,   left_y    = np.array([x/image_scale for _, x in left_col  ]).reshape(-1, 1), np.array([y/image_scale for y,_ in left_col  ]).reshape(-1, 1)
+    bottom_X, bottom_y  = np.array([x/image_scale for _, x in bottom_row]).reshape(-1, 1), np.array([y/image_scale for y,_ in bottom_row]).reshape(-1, 1)
+    top_X,    top_y     = np.array([x/image_scale for _, x in top_row   ]).reshape(-1, 1), np.array([y/image_scale for y,_ in top_row   ]).reshape(-1, 1)
+
+    # Compute ransac for Right edge #
+    ransac.fit(right_X, right_y)
+    right_coef      = ransac.estimator_.coef_
+    right_intercept = ransac.estimator_.intercept_
+
+    # Compute ransac for left edge #
+    ransac.fit(left_X, left_y)
+    left_coef = ransac.estimator_.coef_
+    left_intercept = ransac.estimator_.intercept_
+
+    # Compute ransac for bottom edge #
+    ransac.fit(bottom_X, bottom_y)
+    bottom_coef = ransac.estimator_.coef_
+    bottom_intercept = ransac.estimator_.intercept_
+
+    # Compute ransac for top edge #
+    ransac.fit(top_X, top_y)
+    top_coef = ransac.estimator_.coef_
+    top_intercept = ransac.estimator_.intercept_
+
+    # Calculate corner location estimates
+    top_right_x = (right_intercept - top_intercept) / (top_coef - right_coef)
+    top_right_y = top_coef * top_right_x + top_intercept
+
+    top_left_x = (left_intercept - top_intercept) / (top_coef - left_coef)
+    top_left_y = top_coef * top_left_x + top_intercept
+
+    bottom_right_x = (right_intercept - bottom_intercept) / (bottom_coef - right_coef)
+    bottom_right_y = bottom_coef * bottom_right_x + bottom_intercept
+
+    bottom_left_x = (left_intercept - bottom_intercept) / (bottom_coef - left_coef)
+    bottom_left_y = bottom_coef * bottom_left_x + bottom_intercept
+
+    return np.array([
+            (round(bottom_right_x.item()),round(bottom_right_y.item())),
+            (round(top_right_x.item()), round(top_right_y.item())),
+            (round(bottom_left_x.item()),round(bottom_left_y.item())),
+            (round(top_left_x.item()), round(top_left_y.item()))])
 
 # Compute homography and return rescaled image
-def compute_homography(max_x, max_y, min_x, min_y, img):
-    
-    global image_scale
-
-    max_x /= image_scale
-    max_y /= image_scale
-    min_x /= image_scale
-    min_y /= image_scale
+def compute_homography(pts_src, img):
 
     H, W, _ = img.shape
 
-    pts_src = np.array([(max_x , max_y), (max_x, min_y), (min_x, max_y), (min_x, min_y)])
     pts_dst = np.array([(W, H), (W, 0), (0, H), (0,0)])
+
     h, _ = cv.findHomography(pts_src, pts_dst)
     im_dst = cv.warpPerspective(img, h, (W,H))
 
     return im_dst
 
 def create_homography_for_all_cards(card_dirs):
+            
+    global image_scale
+
     for card_dir in card_dirs:
         if os.path.exists(f"homography_cards/{card_dir}"):
             continue
 
         img = cv.imread(f"cards/{card_dir}")
         _, edges = detect_edges(img)
-        max_x, max_y, min_x, min_y = corners_from_edges(edges)
+        pts_src = corners_from_edges(edges)
 
-        card_homography = compute_homography(max_x, max_y, min_x, min_y, img)
+        card_homography = compute_homography(pts_src, img)
         card_homography = cv.resize(card_homography, (300, 400), card_homography, interpolation=cv.INTER_AREA)
         cv.imwrite(f"homography_cards/{card_dir}", card_homography)
 
