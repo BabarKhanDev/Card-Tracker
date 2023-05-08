@@ -140,8 +140,12 @@ def create_homography_for_all_cards(card_dirs):
 def extract_features(model,preprocess, path):
 
     # Process image
-    image = Image.open(f"homography_cards/{path}")
+    image = Image.open(path).convert('RGB')
     batch = preprocess(image).unsqueeze(0)
+
+    """# Move to device
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    batch, model = batch.to(device), model.to(device)"""
 
     # Calculate Features
     features = model(batch).squeeze(0)
@@ -170,7 +174,7 @@ def calculate_features_for_all_cards(card_dirs):
         if os.path.exists(f"features/{card_dir[:-4]}.pkl"):
             continue
 
-        features = extract_features(model, preprocess, card_dir)
+        features = extract_features(model, preprocess, f"homography_cards/{card_dir}")
         with open(f"features/{card_dir[:-4]}.pkl", "wb") as file:
             pickle.dump(features, file)
 
@@ -183,7 +187,7 @@ def find_closest_match(features, existing_cards):
         with open(f"features/{path[:-4]}.pkl", "rb") as file:
             other_features = pickle.load(file)
 
-        loss = loss_func(other_features, features)
+        loss = loss_func(other_features.to("cuda"), features.to("cuda"))
         matches.append((path, loss.item()))
         
     return matches

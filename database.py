@@ -9,7 +9,6 @@ class Database:
 
     def add_new_cards(self):
         model, preprocess = create_model_and_preprocess()
-
         for card_dir in os.listdir("cards"):
             # dont re-add an existing card
             if card_dir in self.sorted_cards:
@@ -19,7 +18,7 @@ class Database:
             # if no matches then we create a new group
             # otherwise we use the group of the match
 
-            features = extract_features(model, preprocess, card_dir)
+            features = extract_features(model, preprocess, f"homography_cards/{card_dir}")
             matches = [match for match in find_closest_match(features, self.sorted_cards) if match[1] < 1.3]
             matches.sort(key = lambda x: x[1])
 
