@@ -22,8 +22,5 @@ class Database:
             features = extract_features(model, preprocess, f"homography_cards/{card_dir}")
             matches = match_with_all_cards(features)
 
-            print(card_dir)
-            print(matches)
-
             self.card_groups[card_dir] = matches
             self.sorted_cards.append(card_dir)
