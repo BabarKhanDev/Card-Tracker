@@ -3,8 +3,12 @@ import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
 import random
-import pickle
 from sklearn import linear_model
+import pickle
+pickle.DEFAULT_PROTOCOL = 5
+
+from tqdm import tqdm
+from time import perf_counter
 
 from torchvision.models import vgg16, VGG16_Weights
 from torchvision import transforms
@@ -71,14 +75,14 @@ def corners_from_edges(edges):
     top_X,    top_y     = np.array([x/image_scale for _, x in top_row   ]).reshape(-1, 1), np.array([y/image_scale for y,_ in top_row   ]).reshape(-1, 1)
 
     # Compute ransac for Right edge #
-    ransac.fit(right_X, right_y)
-    right_coef      = ransac.estimator_.coef_
-    right_intercept = ransac.estimator_.intercept_
+    ransac.fit(right_y, right_X)
+    right_coef      = 1 / ransac.estimator_.coef_
+    right_intercept = -1 * ransac.estimator_.intercept_ / ransac.estimator_.coef_
 
     # Compute ransac for left edge #
-    ransac.fit(left_X, left_y)
-    left_coef = ransac.estimator_.coef_
-    left_intercept = ransac.estimator_.intercept_
+    ransac.fit(left_y, left_X)
+    left_coef = 1 / ransac.estimator_.coef_
+    left_intercept = -1 * ransac.estimator_.intercept_ / ransac.estimator_.coef_
 
     # Compute ransac for bottom edge #
     ransac.fit(bottom_X, bottom_y)
@@ -102,12 +106,12 @@ def corners_from_edges(edges):
 
     bottom_left_x = (left_intercept - bottom_intercept) / (bottom_coef - left_coef)
     bottom_left_y = bottom_coef * bottom_left_x + bottom_intercept
-
     return np.array([
             (round(bottom_right_x.item()),round(bottom_right_y.item())),
             (round(top_right_x.item()), round(top_right_y.item())),
             (round(bottom_left_x.item()),round(bottom_left_y.item())),
-            (round(top_left_x.item()), round(top_left_y.item()))])
+            (round(top_left_x.item()), round(top_left_y.item()))
+        ])
 
 # Compute homography and return rescaled image
 def compute_homography(pts_src, img):
@@ -122,9 +126,6 @@ def compute_homography(pts_src, img):
     return im_dst
 
 def create_homography_for_all_cards(card_dirs):
-            
-    global image_scale
-
     for card_dir in card_dirs:
         if os.path.exists(f"homography_cards/{card_dir}"):
             continue
@@ -139,16 +140,22 @@ def create_homography_for_all_cards(card_dirs):
 
 def extract_features(model,preprocess, path):
 
+    card_dir = path.split("/")[1:]
+    if os.path.exists(f"features/{card_dir[:-4]}.pkl"):
+        with open(f"features/{card_dir[:-4]}.pkl", "rb") as file:
+            return pickle.load(file)
+
     # Process image
     image = Image.open(path).convert('RGB')
     batch = preprocess(image).unsqueeze(0)
 
-    """# Move to device
+    # Move to device
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    batch, model = batch.to(device), model.to(device)"""
-
+    batch, model = batch.to(device), model.to(device)
+    
     # Calculate Features
     features = model(batch).squeeze(0)
+    del batch
     return features
 
 def create_model_and_preprocess():
@@ -181,15 +188,76 @@ def calculate_features_for_all_cards(card_dirs):
 def find_closest_match(features, existing_cards):
     loss_func = torch.nn.MSELoss(reduction = "mean")
     matches = []
+    device = "cuda" if torch.cuda.is_available() else "cpu"
 
     for path in existing_cards:
 
         with open(f"features/{path[:-4]}.pkl", "rb") as file:
             other_features = pickle.load(file)
 
-        loss = loss_func(other_features.to("cuda"), features.to("cuda"))
+        loss = loss_func(other_features.to(device), features.to(device))
         matches.append((path, loss.item()))
         
+    return matches
+
+def match_with_all_cards(features):
+
+    loss_func = torch.nn.MSELoss(reduction = "mean")
+    matches = np.empty((0,3), dtype=str)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    features = features.to(device)
+
+    sets = os.listdir("card_db/features")
+    
+    loading_feature_time = 0
+    calc_loss_time = 0
+    match_adding_time = 0
+
+    for set in tqdm(sets):
+
+        feature_dirs = os.listdir(f"card_db/features/{set}")
+        for other_features_dir in feature_dirs:
+            
+            # Load the other cards features
+            load_features_start = perf_counter()
+            with open(f"card_db/features/{set}/{other_features_dir}", "rb") as file:
+                other_features = pickle.load(file)
+            load_features_end = perf_counter()
+            loading_feature_time += load_features_end - load_features_start
+
+            # Compare the other card with this one
+            loss_calc_start = perf_counter()
+            loss = loss_func(features, other_features.to(device))
+            loss = loss.item()
+            loss_calc_end = perf_counter()
+            calc_loss_time += loss_calc_end - loss_calc_start
+
+            # If they are a good match then add to matches
+            add_match_start = perf_counter()
+            if len(matches) <= 3 or loss < matches[:,2].max():
+                matches = np.append(
+                    matches,
+                    np.array([
+                        [set, 
+                         other_features_dir[:-4], 
+                         str(loss)]
+                        ]),
+                    axis=0
+                )
+                # Sort the array and take the first 3
+                matches = matches[matches[:, 2].argsort()][:3]
+
+            add_match_end = perf_counter()
+            match_adding_time += add_match_end - add_match_start
+
+            del other_features
+
+    print(f"Time to load features: {loading_feature_time}")                
+    print(f"Time to calc loss: {calc_loss_time}")   
+    print(f"Time to add match: {match_adding_time}")   
+
+    del features
+
     return matches
 
 def load_database():

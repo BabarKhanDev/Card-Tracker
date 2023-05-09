@@ -1,4 +1,6 @@
 cards/
 homography_cards/
 features/
-card_db/sets
+card_db/sets    
+test.py
+card_db/pokellector_empty.jpg
