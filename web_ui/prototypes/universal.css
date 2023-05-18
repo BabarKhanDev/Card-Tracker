@@ -1,0 +1,53 @@
+:root{
+    --width: 250px;
+    --height: 350px;
+    --text_large: 1.1em;
+    --text_small: 0.8em;
+}
+
+nav{
+    width:100%;
+    height:2em;
+    border-bottom:solid 1px black;
+    margin-bottom:1em;
+}
+
+#cards{
+    display:flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content:center;
+}
+
+.card{
+    width:var(--width);
+    box-shadow: 5px 5px 10px 2px rgba(0,0,0,.8);
+    margin-right:2em;
+    margin-bottom:2em;
+}
+
+.card img{
+    height: var(--height);
+    width: var(--width);
+    margin-bottom:0;
+}
+
+.holo{
+
+}
+
+.card_label{
+    width: var(--width);
+    text-align:center;
+    font-size: var(--text_large);
+    padding-top:0.6em;
+    padding-bottom:0.3em;
+    margin:0;
+}
+
+.card_total{
+    width: var(--width);
+    text-align:center;
+    font-size: var(--text_small);
+    margin:0;
+}
