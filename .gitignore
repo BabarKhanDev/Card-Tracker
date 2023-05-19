@@ -4,3 +4,5 @@ features/
 card_db/sets    
 test.py
 card_db/pokellector_empty.jpg
+
+options.txt
