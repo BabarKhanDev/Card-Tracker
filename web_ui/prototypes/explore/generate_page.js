@@ -5,19 +5,47 @@ async function main(){
     body = document.getElementById("sets")
 
     // Get the sets
-    let response = await fetch(card_api_url + "/all_sets")
-    let set_data = await response.json();
+    let response_sets = await fetch(card_api_url + "/all_sets")
+    let set_data = await response_sets.json();
 
+    // When we first see a series we want to create a section for it
+    found_series = new Set()
 
     // Loop through all sets and create an icon for it
     Object.entries(set_data).forEach((entry) => {
-        let set_id = entry[0]
+        let series = entry[1]["series"]
+
+        if (!(found_series.has(series))){
+            create_section(series, body)
+            found_series.add(series)
+        }
+        
         let set_image_url = entry[1]["image_URL"]
         let set_name = entry[1]["name"]
         
-        make_set_button(set_id, set_image_url, set_name, body) 
+        make_set_button(set_image_url, set_name, series) 
     });
 
+}
+
+function create_section(series, body){
+
+    let series_section = document.createElement("section")
+    series_section.setAttribute("id", series)
+    series_section.setAttribute("class", "series_section")
+
+    let series_sets_container = document.createElement("div")
+    series_sets_container.setAttribute("id", series + "_sets")
+    series_sets_container.setAttribute("class", "series_container")
+
+    let series_label = document.createElement("h2")
+    series_label.innerHTML = series[0].toUpperCase() + series.slice(1).toLowerCase()
+    series_label.setAttribute("class", "series_label")
+    
+    series_section.appendChild(series_label)
+    series_section.appendChild(series_sets_container)
+    body.appendChild(series_section)
+    
 }
 
 function update_card_scale(scale){
@@ -30,7 +58,7 @@ function update_card_scale(scale){
     r.style.setProperty('--text-size', String(scale) + "em");
 }
 
-function make_set_button(set_id, set_image_url, set_name, body){
+function make_set_button(set_image_url, set_name, series){
 
     let set_container = document.createElement("div")
     set_container.setAttribute("class", "set_container")
@@ -46,5 +74,7 @@ function make_set_button(set_id, set_image_url, set_name, body){
 
     set_container.appendChild(set_element)
     set_container.appendChild(set_text)
-    body.appendChild(set_container)
+
+    series_container = document.getElementById(series+"_sets")
+    series_container.appendChild(set_container)
 }

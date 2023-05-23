@@ -24,8 +24,4 @@ def get_set_details():
 
 @app.get("/all_sets")
 def get_all_sets():
-    
-    # We want to send back all sets
-    # We will send back the name of the set along with the url for an icon for it
-
     return all_sets
