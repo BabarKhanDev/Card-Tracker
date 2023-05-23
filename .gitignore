@@ -1,6 +1,2 @@
-cards/
-homography_cards/
-features/
-card_db/sets    
-test.py
-card_db/pokellector_empty.jpg
+user_library/
+card_db/
