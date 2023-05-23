@@ -259,11 +259,3 @@ def match_with_all_cards(features):
     del features
 
     return matches
-
-def load_database():
-    with open("card_database.pkl", "rb") as file:
-        return pickle.load(file)
-
-def save_database(database):
-    with open("card_database.pkl", "wb") as file:
-        pickle.dump(database, file)

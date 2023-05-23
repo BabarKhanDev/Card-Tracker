@@ -1,6 +1,6 @@
 from helpers import create_model_and_preprocess, extract_features, match_with_all_cards
 import os
-import torch
+import pickle
 
 class Database:
     def __init__(self):
@@ -24,3 +24,11 @@ class Database:
 
             self.card_groups[card_dir] = matches
             self.sorted_cards.append(card_dir)
+        
+def load():
+    with open("card_database.pkl", "rb") as file:
+        return pickle.load(file)
+    
+def save(database):
+    with open("card_database.pkl", "wb") as file:
+        pickle.dump(database, file)
