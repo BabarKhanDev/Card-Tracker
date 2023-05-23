@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="../universal.css" />
+
+    <script src="generate_page.js"></script>
+
+    <title>Explore All Cards</title>
+</head>
+<body onload = main()>
+    
+    <nav id = "navbar">Explore All Cards</nav>
+
+    <section id = "settings">
+
+        <label for="card_scale">Scale</label>
+        <input type="range" id="card_scale" name="card_scale" min="0" max="5"  onChange="update_card_scale(this.value);">
+        
+
+    </section>
+
+    <section id = "sets"> </section>
+
+
+</body>
+</html>
