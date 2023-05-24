@@ -25,3 +25,18 @@ def get_set_details():
 @app.get("/all_sets")
 def get_all_sets():
     return all_sets
+
+@app.get("/set/<set_id>")
+def get_set(set_id):
+
+    print(list(filter(lambda x: x["id"] == set_id, all_sets)))
+
+    try:
+        with open(f"card_db/card_data/{set_id}.pkl", "rb") as file:
+            cards_in_set =  pickle.load(file)
+        
+
+        return cards_in_set
+
+    except:
+        return "Set Not Found"

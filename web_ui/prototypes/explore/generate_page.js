@@ -22,13 +22,26 @@ async function main(){
         
         let set_image_url = entry[1]["image_URL"]
         let set_name = entry[1]["name"]
+        let set_id = entry[1]["id"]
         
-        make_set_button(set_image_url, set_name, series) 
+        make_set_button(set_image_url, set_name, series, set_id) 
     });
 
 }
 
+function update_card_scale(scale){
+    var r = document.querySelector(':root');
+
+    scale = scale * 0.5 + 1
+
+    r.style.setProperty('--width', String(250 * scale) + "px");
+    r.style.setProperty('--height', String(350 * scale) + "px");
+    r.style.setProperty('--text-size', String(scale) + "em");
+}
+
 function create_section(series, body){
+
+
 
     let series_section = document.createElement("section")
     series_section.setAttribute("id", series)
@@ -48,20 +61,11 @@ function create_section(series, body){
     
 }
 
-function update_card_scale(scale){
-    var r = document.querySelector(':root');
+function make_set_button(set_image_url, set_name, series, id){
 
-    scale = scale * 0.5 + 1
-
-    r.style.setProperty('--width', String(250 * scale) + "px");
-    r.style.setProperty('--height', String(350 * scale) + "px");
-    r.style.setProperty('--text-size', String(scale) + "em");
-}
-
-function make_set_button(set_image_url, set_name, series){
-
-    let set_container = document.createElement("div")
+    let set_container = document.createElement("a")
     set_container.setAttribute("class", "set_container")
+    set_container.setAttribute("href", "../set/"+id)
 
     let set_element = document.createElement("img")
     set_element.setAttribute("alt", set_name + "logo")

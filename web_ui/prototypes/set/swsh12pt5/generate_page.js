@@ -20,13 +20,26 @@ function update_card_scale(scale){
     r.style.setProperty('--height', String(350 * scale) + "px");
 }
 
-function main(){
+function update_card_padding(padding){
+    var r = document.querySelector(':root');
+
+    r.style.setProperty('--padding', String(10 * padding) + "em");
+}
+
+async function main(){
     let card_library = document.getElementById("cards")
     
-    for (let i= 0; i < 11; i++){
+    // Get the sets
+    card_api_url = "http://127.0.0.1:5000"
+    let response_cards = await fetch(card_api_url + "/set/swsh12pt5")
+    let card_data = await response_cards.json()
+    card_data.sort((a,b) => a.id - b.id)
+    console.log(card_data)
 
-        card_element = generate_card("apple", i, "https://m.media-amazon.com/images/I/61TUXDvMZGL._AC_SY741_.jpg")
+    card_data.forEach(function (card) {
+        card_element = generate_card(card.name, card.id, card.images.large)
         card_library.appendChild(card_element)
+    })
 
-    }
+
 }
