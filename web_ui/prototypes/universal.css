@@ -51,6 +51,7 @@ nav{
     margin-right:2em;
     margin-bottom:2em;
     perspective: 40px;
+    border-radius: 2.5em;
 }
 
 .card_image{
