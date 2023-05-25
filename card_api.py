@@ -40,3 +40,8 @@ def get_set(set_id):
 
     except:
         return "Set Not Found"
+    
+@app.get("/wishlist")
+def get_wishlist():
+    with open("wishlist.pkl" "rb") as file:
+        return pickle.load(file)
