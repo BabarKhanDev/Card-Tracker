@@ -51,6 +51,7 @@ nav{
     margin-bottom:2em;
     perspective: 40px;
     border-radius: 1em;
+    background-color: #AB59FF
 }
 
 .card_image{
@@ -138,17 +139,21 @@ nav{
 }
 
 .wishlist_add, .wishlist_sub, .wishlist_count{
-    width: calc(var(--width) / 3);
+    width: calc(var(--width) / 2);
     font-size: calc(var(--text-size)*1.1);
     text-align:center;
+    margin-right:0.5em;
+    margin-left:0.5em;
+}
+.wishlist_add, .wishlist_sub{
+    width: calc(var(--width) / 5);
+    border-radius:3px;
 }
 .wishlist_add:hover{
-    background-color: rgb(104, 255, 104);
-    border-bottom-right-radius:0.2em;
+    background-color: #80FFA9;
 }
 .wishlist_sub:hover{
-    background-color: rgb(236, 12, 72);
-    border-bottom-left-radius:0.2em;
+    background-color: #FF5D59;
 }
 
 /* big card preview */

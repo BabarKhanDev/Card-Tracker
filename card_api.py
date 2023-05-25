@@ -41,22 +41,27 @@ def get_set(set_id):
     
 @app.route("/wishlist", methods = ["GET", "POST"])
 def get_wishlist():
-
+    # GET - Send the wishlist
     if request.method == 'GET':
         with open("wishlist.pkl", "rb") as file:
             return pickle.load(file)
     
+    # POST - Add the amount specified to the wishlist
     with open("wishlist.pkl", "rb") as file:
         wishlist = pickle.load(file)
 
-    try:
-        card_id = request.form["card_id"]
-        print(card_id)
-        wishlist.append(card_id)
+    card_id = request.form["card_id"]
+    amount  = int(request.form["amount"])
 
-        with open("wishlist.pkl", "wb") as file:
-            pickle.dump(wishlist, file)
-    
-        return wishlist
-    except:
-        return "Card_id parameter not found"
+    if card_id in wishlist:
+        wishlist[card_id] += amount
+    else:
+        wishlist[card_id]  = amount
+
+    if wishlist[card_id] == 0:
+        wishlist.pop(card_id)
+
+    with open("wishlist.pkl", "wb") as file:
+        pickle.dump(wishlist, file)
+
+    return wishlist

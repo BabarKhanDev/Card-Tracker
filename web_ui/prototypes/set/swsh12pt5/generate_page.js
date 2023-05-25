@@ -18,7 +18,7 @@ async function generate_card(name, id, imgsrc, wishlist_amount){
 
     let wishlist_count = document.createElement("div")
     wishlist_count.setAttribute("class", "wishlist_count")
-    wishlist_count.innerHTML = "Want: " + wishlist_amount
+    wishlist_count.innerHTML = "In Wishlist: " + wishlist_amount
 
     let wishlist_container = document.createElement("div")
     wishlist_container.setAttribute("id", "wishlist_container-"+id)
