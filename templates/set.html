@@ -5,34 +5,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" type="text/css" href="../universal.css" />
-    <script src="generate_page.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/universal.css') }}" />
+    
+    <script src="{{ url_for('static',filename='js/settings.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/create_card.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/generate_set.js') }}"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"> 
 
-    <title>Library</title>
+    <title>{{set_name}}</title>
 </head>
 <body onload = main()>
     
-    <nav id = "navbar">User Library</nav>
+    <nav id = "navbar">{{set_name}}</nav>
 
     <section id = "settings">
 
         <label for="card_scale">Scale </label>
         <input type="range" id="card_scale" name="card_scale" min="0" max="5"  onChange="update_card_scale(this.value);">
         
+        <label for="card_padding">Padding </label>
+        <input type="range" id="card_padding" name="card_padding" min="0" max="7"  onChange="update_card_padding(this.value);">
 
     </section>
 
     <section id = "cards">
-
-        <div class = "card">
-
-            <img class = "card_image" src = 'https://m.media-amazon.com/images/I/61TUXDvMZGL._AC_SY741_.jpg' alt = "image of apple">
-            <!-- <img class = "holo", src = "../cards/holo.gif"> -->
-        </div>
 
     </section>
 

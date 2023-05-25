@@ -1,22 +1,9 @@
-card_api_url = "http://127.0.0.1:5000"
-
-async function update_wishlist(id, amount){
-    let formData = new FormData();
-    formData.append('card_id', id);
-    formData.append('amount', amount);
-
-    let response = await fetch(card_api_url+"/wishlist", {
-        method:'POST',
-        body: formData
-    })
-}
-
-async function generate_card(name, id, imgsrc, wishlist_amount){
+async function generate_card(name, id, small_src, imgsrc, wishlist_amount){
 
     let img_element = document.createElement("img")
     img_element.setAttribute("alt", name + " card" ) 
     img_element.setAttribute("class", "card_image")
-    img_element.setAttribute("src", imgsrc)
+    img_element.setAttribute("src", small_src)
     img_element.onclick = async () => await generate_big_card(imgsrc, name + " card")
 
     let wishlist_add = document.createElement("div")
@@ -82,35 +69,5 @@ function generate_big_card(imgsrc, alt){
     big_card_container.appendChild(close_button)
 
     document.body.appendChild(big_card_container)
-
-}
-
-async function main(){
-
-    let set_name = "swsh12pt5"
-
-    let card_library = document.getElementById("cards")
-    
-    // Get the sets
-    let response_cards = await fetch(card_api_url + "/set/" + set_name)
-    let card_data = await response_cards.json()
-    card_data.sort((a,b) => a.id - b.id)
-
-    // Get the wishlist
-    let response_wishlist = await fetch(card_api_url + "/wishlist") 
-    let wishlist = await response_wishlist.json()
-
-    card_data.forEach(async function (card) {
-
-        let wanted = 0
-        let wishlist_id = set_name + "-" + card.id
-
-        if (Object.keys(wishlist).includes(wishlist_id)){
-            wanted = wishlist[wishlist_id]
-        }
-
-        card_element = await generate_card(card.name, wishlist_id, card.images.large, wanted)
-        card_library.appendChild(card_element)
-    })
 
 }

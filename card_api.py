@@ -1,5 +1,5 @@
 # These will handle the requests from the web ui
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_cors import CORS
 
 import pickle
@@ -16,7 +16,7 @@ CORS(app)
 def get_all_sets():
     return all_sets
 
-# This wil lreturn all of the cards in a set
+# This will return all of the cards in a set
 @app.get("/set/<set_id>")
 def get_set(set_id):
 
@@ -28,6 +28,22 @@ def get_set(set_id):
 
     except:
         return "Set Not Found"
+
+# This will allow you to explore a given set
+@app.get("/explore/<set_id>")
+def explore_set(set_id):
+    set_name = next(iter(filter(lambda x: x["id"] == set_id, all_sets)))["name"]
+    return render_template('set.html', set_name = set_name)
+
+# This will allow you to explore all sets
+@app.get("/explore")
+def explore_sets():
+    return render_template('explore.html')
+
+# This will allow you to explore the library
+@app.get("/library")
+def explore_library():
+    return render_template('library.html')
 
 # This will return the wishlished cards and allow you to add/remove a card from the wishlist
 @app.route("/wishlist", methods = ["GET", "POST"])

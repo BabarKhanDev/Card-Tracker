@@ -29,19 +29,7 @@ async function main(){
 
 }
 
-function update_card_scale(scale){
-    var r = document.querySelector(':root');
-
-    scale = scale * 0.5 + 1
-
-    r.style.setProperty('--width', String(250 * scale) + "px");
-    r.style.setProperty('--height', String(350 * scale) + "px");
-    r.style.setProperty('--text-size', String(scale) + "em");
-}
-
 function create_section(series, body){
-
-
 
     let series_section = document.createElement("section")
     series_section.setAttribute("id", series)
@@ -65,7 +53,7 @@ function make_set_button(set_image_url, set_name, series, id){
 
     let set_container = document.createElement("a")
     set_container.setAttribute("class", "set_container")
-    set_container.setAttribute("href", "../set/"+id)
+    set_container.setAttribute("href", "../explore/"+id)
 
     let set_element = document.createElement("img")
     set_element.setAttribute("alt", set_name + "logo")
