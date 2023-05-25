@@ -1,17 +1,18 @@
 card_api_url = "http://127.0.0.1:5000"
 
 async function update_wishlist(id, amount){
-    data = {"card_id":id, "amount":amount};
-    console.log(JSON.stringify(data))
+    let formData = new FormData();
+    formData.append('card_id', id);
+    formData.append('amount', amount);
+
+    console.log(JSON.stringify(formData))
     let response = await fetch(card_api_url+"/wishlist", {
-        method: "POST",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-        body: JSON.stringify(data)
-    });
+        method:'POST',
+        body: formData
+    })
 }
+
+
 
 async function generate_card(name, id, imgsrc, wishlist_amount){
 
@@ -19,7 +20,7 @@ async function generate_card(name, id, imgsrc, wishlist_amount){
     img_element.setAttribute("alt", name + " card" ) 
     img_element.setAttribute("class", "card_image")
     img_element.setAttribute("src", imgsrc)
-    img_element.onclick = () => generate_big_card(imgsrc, name + " card")
+    img_element.onclick = async () => await generate_big_card(imgsrc, name + " card")
 
     let wishlist_add = document.createElement("div")
     wishlist_add.setAttribute("class", "wishlist_add")
@@ -29,7 +30,7 @@ async function generate_card(name, id, imgsrc, wishlist_amount){
     let wishlist_sub = document.createElement("div")
     wishlist_sub.setAttribute("class", "wishlist_sub")
     wishlist_sub.innerHTML = "-"
-    wishlist_sub.onclick = async () => update_wishlist(id, "-1")
+    wishlist_sub.onclick = async () => await update_wishlist(id, "-1")
 
     let wishlist_count = document.createElement("div")
     wishlist_count.setAttribute("class", "wishlist_count")

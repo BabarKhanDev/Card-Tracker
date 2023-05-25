@@ -59,7 +59,7 @@ def get_wishlist():
     else:
         wishlist[card_id]  = amount
 
-    if wishlist[card_id] == 0:
+    if wishlist[card_id] <= 0:
         wishlist.pop(card_id)
 
     with open("wishlist.pkl", "wb") as file:
