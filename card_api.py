@@ -50,6 +50,7 @@ def get_wishlist():
     with open("wishlist.pkl", "rb") as file:
         wishlist = pickle.load(file)
 
+    print(request.form)
     card_id = request.form["card_id"]
     amount  = int(request.form["amount"])
 
