@@ -5,14 +5,11 @@ async function update_wishlist(id, amount){
     formData.append('card_id', id);
     formData.append('amount', amount);
 
-    console.log(JSON.stringify(formData))
     let response = await fetch(card_api_url+"/wishlist", {
         method:'POST',
         body: formData
     })
 }
-
-
 
 async function generate_card(name, id, imgsrc, wishlist_amount){
 
@@ -52,9 +49,21 @@ async function generate_card(name, id, imgsrc, wishlist_amount){
     return card_element
 }
 
-function generate_big_card(imgsrc, alt){
+function close_big_card(){
+    let cards = document.querySelectorAll(".big_card_container")
+    cards.forEach(card => {
+        card.remove()
+    })
+}
 
-    console.log(imgsrc)
+document.onkeydown = function(evt) {
+    evt = evt || window.event;
+    if (evt.key  == "Escape") {
+        close_big_card()
+    }
+};
+
+function generate_big_card(imgsrc, alt){
 
     let big_card_container = document.createElement("div")
     big_card_container.setAttribute("class", "big_card_container")
@@ -68,21 +77,11 @@ function generate_big_card(imgsrc, alt){
     let close_button = document.createElement("div")
     close_button.setAttribute("class", "big_card_close")
     close_button.innerHTML = "X "
-    close_button.setAttribute("onclick", 
-        `
-        let cards = document.querySelectorAll(".big_card_container")
-        cards.forEach(card => {
-            card.remove()
-        })
-        `
-    )
+    close_button.onclick = () => close_big_card()
 
     big_card_container.appendChild(close_button)
 
-
-
     document.body.appendChild(big_card_container)
-    console.log("test")
 
 }
 
@@ -96,12 +95,10 @@ async function main(){
     let response_cards = await fetch(card_api_url + "/set/" + set_name)
     let card_data = await response_cards.json()
     card_data.sort((a,b) => a.id - b.id)
-    console.log(card_data)
 
     // Get the wishlist
     let response_wishlist = await fetch(card_api_url + "/wishlist") 
     let wishlist = await response_wishlist.json()
-    console.log(wishlist)
 
     card_data.forEach(async function (card) {
 
@@ -110,7 +107,6 @@ async function main(){
 
         if (Object.keys(wishlist).includes(wishlist_id)){
             wanted = wishlist[wishlist_id]
-            console.log("Want " + card.name + " x " + wanted)
         }
 
         card_element = await generate_card(card.name, wishlist_id, card.images.large, wanted)
