@@ -29,8 +29,6 @@ def get_all_sets():
 @app.get("/set/<set_id>")
 def get_set(set_id):
 
-    print(list(filter(lambda x: x["id"] == set_id, all_sets)))
-
     try:
         with open(f"card_db/card_data/{set_id}.pkl", "rb") as file:
             cards_in_set =  pickle.load(file)
@@ -41,7 +39,24 @@ def get_set(set_id):
     except:
         return "Set Not Found"
     
-@app.get("/wishlist")
+@app.route("/wishlist", methods = ["GET", "POST"])
 def get_wishlist():
-    with open("wishlist.pkl" "rb") as file:
-        return pickle.load(file)
+
+    if request.method == 'GET':
+        with open("wishlist.pkl", "rb") as file:
+            return pickle.load(file)
+    
+    with open("wishlist.pkl", "rb") as file:
+        wishlist = pickle.load(file)
+
+    try:
+        card_id = request.form["card_id"]
+        print(card_id)
+        wishlist.append(card_id)
+
+        with open("wishlist.pkl", "wb") as file:
+            pickle.dump(wishlist, file)
+    
+        return wishlist
+    except:
+        return "Card_id parameter not found"

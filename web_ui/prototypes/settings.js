@@ -5,6 +5,7 @@ function update_card_scale(scale){
 
     r.style.setProperty('--width', String(250 * scale) + "px");
     r.style.setProperty('--height', String(350 * scale) + "px");
+    r.style.setProperty('--text-size',  String(scale)+ "em")
 }
 
 function update_card_padding(padding){

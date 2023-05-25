@@ -45,13 +45,12 @@ nav{
 }
 
 .card{
-    height: var(--height);
     width: var(--width);
     box-shadow: 5px 5px 10px 2px rgba(0,0,0,.8);
     margin-right:2em;
     margin-bottom:2em;
     perspective: 40px;
-    border-radius: 2.5em;
+    border-radius: 1em;
 }
 
 .card_image{
@@ -60,6 +59,9 @@ nav{
     margin-bottom:0;
     -webkit-filter: brightness(100%);
     filter: brightness(100%);
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+    
 }
 
 .card:hover {
@@ -70,6 +72,7 @@ nav{
     -o-transition: all 0.5s ease;
     -ms-transition: all 0.5s ease;
     transition: all 0.5s ease;
+    cursor: pointer;
 }
 
 .holo{
@@ -125,4 +128,68 @@ nav{
 
 .series_label{
     width:100%;
+}
+
+/* Set page wishlisting */
+
+.wishlist_container{
+    display:flex;
+    justify-content:center;
+}
+
+.wishlist_add, .wishlist_sub, .wishlist_count{
+    width: calc(var(--width) / 3);
+    font-size: calc(var(--text-size)*1.1);
+    text-align:center;
+}
+.wishlist_add:hover{
+    background-color: rgb(104, 255, 104);
+    border-bottom-right-radius:0.2em;
+}
+.wishlist_sub:hover{
+    background-color: rgb(236, 12, 72);
+    border-bottom-left-radius:0.2em;
+}
+
+/* big card preview */
+
+.big_card_container{
+    position:fixed;
+    top:0;
+    left:0;
+    min-width:100%;
+    min-height:100vh;
+    background-color:rgba(0, 0, 0, 0.923);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.big_card_close{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background-color: rgb(236, 12, 72);
+    font-size: calc(var(--text-size) * 2);
+    font-weight:bold;
+    padding:0.2em;
+    border-radius:0.1em;
+}
+
+.big_card_close:hover{
+    background-color:rgb(150, 7, 45);
+    cursor:pointer;
+}
+
+.big_card_image{
+    max-height: calc(var(--height) * 3);
+    max-width: calc(var(--width) * 3);
+    margin-bottom:1em;
 }
