@@ -5,7 +5,7 @@ from flask_cors import CORS
 import pickle
 
 # Load the set details pickle file
-with open("all_sets.pkl", "rb") as file:
+with open("tcg_cache/all_sets.pkl", "rb") as file:
     all_sets = pickle.load(file)
 
 app = Flask(__name__)
@@ -21,7 +21,7 @@ def get_all_sets():
 def get_set(set_id):
 
     try:
-        with open(f"card_db/card_data/{set_id}.pkl", "rb") as file:
+        with open(f"tcg_cache/card_data/{set_id}.pkl", "rb") as file:
             cards_in_set =  pickle.load(file)
         
         return cards_in_set
@@ -50,11 +50,11 @@ def explore_library():
 def get_wishlist():
     # GET - Send the wishlist
     if request.method == 'GET':
-        with open("wishlist.pkl", "rb") as file:
+        with open("user_library/wishlist.pkl", "rb") as file:
             return pickle.load(file)
     
     # POST - Add the amount specified to the wishlist
-    with open("wishlist.pkl", "rb") as file:
+    with open("user_library/wishlist.pkl", "rb") as file:
         wishlist = pickle.load(file)
 
     print(request.form)
@@ -69,7 +69,7 @@ def get_wishlist():
     if wishlist[card_id] <= 0:
         wishlist.pop(card_id)
 
-    with open("wishlist.pkl", "wb") as file:
+    with open("user_library/wishlist.pkl", "wb") as file:
         pickle.dump(wishlist, file)
 
     return wishlist
