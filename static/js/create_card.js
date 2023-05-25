@@ -1,10 +1,10 @@
-async function generate_card(name, id, small_src, imgsrc, wishlist_amount){
+async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_wishlist = true){
 
     let img_element = document.createElement("img")
     img_element.setAttribute("alt", name + " card" ) 
     img_element.setAttribute("class", "card_image")
     img_element.setAttribute("src", small_src)
-    img_element.onclick = async () => await generate_big_card(imgsrc, name + " card")
+    img_element.onclick = async () => generate_big_card(imgsrc, name + " card")
 
     let wishlist_add = document.createElement("div")
     wishlist_add.setAttribute("class", "wishlist_add")
@@ -31,8 +31,10 @@ async function generate_card(name, id, small_src, imgsrc, wishlist_amount){
     card_element.setAttribute("class", "card")
     card_element.setAttribute("wishlist_id", id)
     card_element.appendChild(img_element)
-    card_element.appendChild(wishlist_container)
-
+    if (show_wishlist){
+        card_element.appendChild(wishlist_container)
+    }
+ 
     return card_element
 }
 
