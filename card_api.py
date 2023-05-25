@@ -8,24 +8,15 @@ import pickle
 with open("all_sets.pkl", "rb") as file:
     all_sets = pickle.load(file)
 
-# Flask API
 app = Flask(__name__)
 CORS(app)
 
-@app.get("/set_details")
-def get_set_details():
-    requested_set = request.args.get('set') or -1
-    
-    print('data from client:', requested_set)
-    dictToReturn = {'answer':42}
-
-
-    return {"programming_languages":list(dictToReturn.values())}
-
+# This will return all sets in a dictionary
 @app.get("/all_sets")
 def get_all_sets():
     return all_sets
 
+# This wil lreturn all of the cards in a set
 @app.get("/set/<set_id>")
 def get_set(set_id):
 
@@ -33,12 +24,12 @@ def get_set(set_id):
         with open(f"card_db/card_data/{set_id}.pkl", "rb") as file:
             cards_in_set =  pickle.load(file)
         
-
         return cards_in_set
 
     except:
         return "Set Not Found"
-    
+
+# This will return the wishlished cards and allow you to add/remove a card from the wishlist
 @app.route("/wishlist", methods = ["GET", "POST"])
 def get_wishlist():
     # GET - Send the wishlist
