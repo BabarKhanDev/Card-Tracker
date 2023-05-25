@@ -51,7 +51,7 @@ function generate_big_card(imgsrc, alt){
 
     let close_button = document.createElement("div")
     close_button.setAttribute("class", "big_card_close")
-    close_button.innerHTML = "Click To Close"
+    close_button.innerHTML = "X "
     close_button.setAttribute("onclick", 
         `
         let cards = document.querySelectorAll(".big_card_container")
