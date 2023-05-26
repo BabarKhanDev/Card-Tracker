@@ -1,5 +1,4 @@
 async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_wishlist = true){
-
     let img_element = document.createElement("img")
     img_element.setAttribute("alt", name + " card" ) 
     img_element.setAttribute("class", "card_image")
@@ -18,6 +17,7 @@ async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_
 
     let wishlist_count = document.createElement("div")
     wishlist_count.setAttribute("class", "wishlist_count")
+    wishlist_count.setAttribute("id", "wishlist_count_"+id)
     wishlist_count.innerHTML = "In Wishlist: " + wishlist_amount
 
     let wishlist_container = document.createElement("div")
@@ -36,6 +36,29 @@ async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_
     }
  
     return card_element
+}
+
+async function update_wishlist(id, amount){
+    let formData = new FormData();
+    formData.append('card_id', id);
+    formData.append('amount', amount);
+
+    let response = await fetch(card_api_url+"/wishlist", {
+        method:'POST',
+        body: formData
+    })
+
+    let wishlist = await response.json()
+    let counter = document.getElementById("wishlist_count_"+id);
+
+    // if we unwishlist then the id will not be in the wishlist dictionary
+    if (id in wishlist){
+        counter.innerHTML = "In Wishlist: " + String(wishlist[id])
+    }
+    else{
+        counter.innerHTML = "In Wishlist: 0"
+    }
+        
 }
 
 function close_big_card(){

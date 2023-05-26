@@ -1,16 +1,5 @@
 card_api_url = "http://127.0.0.1:5000"
 
-async function update_wishlist(id, amount){
-    let formData = new FormData();
-    formData.append('card_id', id);
-    formData.append('amount', amount);
-
-    let response = await fetch(card_api_url+"/wishlist", {
-        method:'POST',
-        body: formData
-    })
-}
-
 async function main(){
 
     let url = window.location.href.split("/")
@@ -31,7 +20,7 @@ async function main(){
     card_data.forEach(async function (card) {
 
         let wanted = 0
-        let wishlist_id = set_name + "-" + card.id
+        let wishlist_id = card.id
 
         if (Object.keys(wishlist).includes(wishlist_id)){
             wanted = wishlist[wishlist_id]
