@@ -1,0 +1,5 @@
+To run the app you run the following in a terminal
+
+flask --app card_api.py run --host=0.0.0.0
+
+this will allow the app to be accessible on the local network
