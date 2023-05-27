@@ -24,8 +24,8 @@
     
         <h1>Explore All Cards</h1>
         <a href = /library><h3>Library</h3></a>
+        <a href = /explore><h3>Explore</h3></a>
         <a href = /wishlist><h3>Wishlist</h3></a>
-    
     </nav>
 
     <section id = "settings">
@@ -33,6 +33,8 @@
         <label for="card_scale">Scale</label>
         <input type="range" id="card_scale" name="card_scale" min="0" max="5"  onChange="update_card_scale(this.value);">
         
+        <label for="card_padding">Padding </label>
+        <input type="range" id="card_padding" name="card_padding" min="1" max="15"  onChange="update_card_padding(this.value);">
 
     </section>
 

@@ -11,5 +11,5 @@ function update_card_scale(scale){
 function update_card_padding(padding){
     var r = document.querySelector(':root');
 
-    r.style.setProperty('--padding', String(10 * padding) + "em");
+    r.style.setProperty('--padding', String( 5 * (padding) ) + "em");
 }

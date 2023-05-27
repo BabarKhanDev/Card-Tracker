@@ -34,7 +34,7 @@ def get_set(set_id):
 
 # This will return the wishlished cards 
 # Posting allows you to add/remove a card from the wishlist
-@app.route("/wishlist", methods = ["GET", "POST"])
+@app.route("/wishlist_json", methods = ["GET", "POST"])
 def get_wishlist():
     # GET - Send the wishlist
     if request.method == 'GET':
@@ -62,6 +62,45 @@ def get_wishlist():
 
     return wishlist
 
+@app.get("/wishlist_cards")
+def get_wishlist_cards():
+
+    with open("user_library/wishlist.pkl", "rb") as file:
+        wishlist = pickle.load(file)
+
+    card_data = []
+    for card in wishlist:
+
+        # Split the wishlist item up into the set and number
+        card_set = card.split("-")[0]
+        card_number = card.split("-")[1]
+
+        # Remove leading zeros from string
+        non_zero_found = False
+        for char in card_number[:]:
+            if char == '0':
+                card_number = card_number[1:]
+            else:
+                break
+
+        # Load the cached data for that set
+        with open(f"tcg_cache/card_data/{card_set}.pkl", "rb") as file:
+            entire_set = pickle.load(file)
+
+        # Find the card within that set that has the right number
+        filtered_cards = list(filter(lambda x: x.number == card_number, entire_set))
+        card_data.append(filtered_cards[0])
+    
+    return card_data
+
+@app.get("/set_id_to_name/<set_id>")
+def set_id_to_name(set_id):
+    try:
+        set_name = next(iter(filter(lambda x: x["id"] == set_id, all_sets)))["name"]
+        return set_name
+    except:
+        return "Set ID not found"
+
 #################
 # HTML DELIVERY #
 #################
@@ -69,8 +108,9 @@ def get_wishlist():
 # This will allow you to explore a given set
 @app.get("/explore/<set_id>")
 def explore_set(set_id):
-    set_name = next(iter(filter(lambda x: x["id"] == set_id, all_sets)))["name"]
+    set_name = set_id_to_name(set_id)
     return render_template('set.html', set_name = set_name)
+
 
 # This will allow you to explore all sets
 @app.get("/explore")
@@ -81,3 +121,7 @@ def explore_sets():
 @app.get("/library")
 def explore_library():
     return render_template('library.html')
+
+@app.get("/wishlist")
+def explore_wishlist():
+    return render_template('wishlist.html')

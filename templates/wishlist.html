@@ -9,19 +9,19 @@
     
     <script src="{{ url_for('static',filename='js/settings.js') }}"></script>
     <script src="{{ url_for('static',filename='js/create_card.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/generate_library.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/generate_wishlist.js') }}"></script>
 
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"> 
 
-    <title>Library</title>
+    <title>Wishlist</title>
 </head>
 <body onload = main()>
     
     <nav id = "navbar">
-        <h2>User Library</h2>
+        <h2>Wishlist</h2>
         <a href = /library><h3>Library</h3></a>
         <a href = /explore><h3>Explore</h3></a>
         <a href = /wishlist><h3>Wishlist</h3></a>
@@ -37,15 +37,9 @@
 
     </section>
 
-    <section id = "cards">
+    <div id = "sets">
 
-        <div class = "card">
-
-            <img class = "card_image" src = 'https://m.media-amazon.com/images/I/61TUXDvMZGL._AC_SY741_.jpg' alt = "image of apple">
-            <!-- <img class = "holo", src = "../cards/holo.gif"> -->
-        </div>
-
-    </section>
+    </div>
 
 
 </body>

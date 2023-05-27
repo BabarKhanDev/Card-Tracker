@@ -4,7 +4,6 @@ async function main(){
 
     let url = window.location.href.split("/")
     let set_name = url[url.length -1]
-    console.log(set_name)
 
     let card_library = document.getElementById("cards")
     
@@ -14,7 +13,7 @@ async function main(){
     card_data.sort((a,b) => a.id - b.id)
 
     // Get the wishlist
-    let response_wishlist = await fetch(card_api_url + "/wishlist") 
+    let response_wishlist = await fetch(card_api_url + "/wishlist_json") 
     let wishlist = await response_wishlist.json()
 
     card_data.forEach(async function (card) {

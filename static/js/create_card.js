@@ -1,4 +1,4 @@
-async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_wishlist = true){
+async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_wishlist = true, delete_if_wishlist_zero = false){
     let img_element = document.createElement("img")
     img_element.setAttribute("alt", name + " card" ) 
     img_element.setAttribute("class", "card_image")
@@ -13,7 +13,7 @@ async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_
     let wishlist_sub = document.createElement("div")
     wishlist_sub.setAttribute("class", "wishlist_sub")
     wishlist_sub.innerHTML = "-"
-    wishlist_sub.onclick = async () => await update_wishlist(id, "-1")
+    wishlist_sub.onclick = async () => await update_wishlist(id, "-1", delete_if_wishlist_zero)
 
     let wishlist_count = document.createElement("div")
     wishlist_count.setAttribute("class", "wishlist_count")
@@ -38,12 +38,12 @@ async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_
     return card_element
 }
 
-async function update_wishlist(id, amount){
+async function update_wishlist(id, amount, delete_if_wishlist_zero){
     let formData = new FormData();
     formData.append('card_id', id);
     formData.append('amount', amount);
 
-    let response = await fetch(card_api_url+"/wishlist", {
+    let response = await fetch(card_api_url+"/wishlist_json", {
         method:'POST',
         body: formData
     })
@@ -56,7 +56,14 @@ async function update_wishlist(id, amount){
         counter.innerHTML = "In Wishlist: " + String(wishlist[id])
     }
     else{
-        counter.innerHTML = "In Wishlist: 0"
+        if (delete_if_wishlist_zero){
+            let card_container = document.querySelector('[wishlist_id='+id+']');
+            card_container.remove()
+        }
+        else{
+            counter.innerHTML = "In Wishlist: 0"
+        }
+        
     }
         
 }
