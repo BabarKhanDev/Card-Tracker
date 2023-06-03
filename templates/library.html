@@ -35,10 +35,16 @@
         <label for="card_padding">Padding </label>
         <input type="range" id="card_padding" name="card_padding" min="1" max="15"  onChange="update_card_padding(this.value);">
 
-        <label for ="create_upload_menu" > Upload Cards</label>
+        <label id="upload_label" for ="create_upload_menu" > Upload Cards </label>
         <button type="button" id="create_upload_menu" onClick="show_upload_menu();" class="button"> 
             <img src="{{ url_for('static',filename='svg/upload-file.svg') }}">
         </button>
+
+        <label id="refresh_label" for ="refresh_library" > Rescan Library </label>
+        <button type="button" id="refresh_library" onClick="rescan_library();" class="button"> 
+            <img src="{{ url_for('static',filename='svg/refresh.svg') }}">
+        </button>
+
     </section>
 
     <section id = "cards">

@@ -5,8 +5,14 @@
     --padding: 5em;
 }
 
+input:hover{
+    cursor:pointer;
+}
+
 body{
     font-family: 'Roboto', sans-serif;
+    margin:0;
+    padding:0;
 }
 
 a{
@@ -15,7 +21,7 @@ a{
 }
 
 nav{
-    width:100%;
+    width:calc(100%-1em);
     border-bottom:solid 1px black;
     display:flex;
     flex-direction: row;
@@ -44,12 +50,15 @@ nav > *:not(a), nav> a > * {
 
 #settings *{
     max-height:1.5em;
-
 }
 
-#card_padding, #card_scale, #create_upload_menu{
+#card_padding, #card_scale, #create_upload_menu, #refresh_library{
     margin-right:2em;
     margin-left:0.2em;
+}
+
+#upload_label:hover, #refresh_label:hover{
+    cursor:pointer;
 }
 
 /* Card Page CSS */
@@ -141,7 +150,7 @@ nav > *:not(a), nav> a > * {
 
     box-shadow: 2px 4px #888888;
 }
-#create_upload_menu{
+#create_upload_menu, #refresh_library{
     font-size:1em;
     background-color:#00000000
 }
@@ -265,7 +274,6 @@ nav > *:not(a), nav> a > * {
     max-width: calc(var(--width) * 3);
     margin-bottom:1em;
 }
-
 
 /* Key frames */
 @keyframes fadeIn {

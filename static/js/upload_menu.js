@@ -38,3 +38,7 @@ function upload_main(){
         fileCountElement.textContent = files.length + " files selected";
     });
 }
+
+async function rescan_library(){
+    alert("refreshing library")
+}
