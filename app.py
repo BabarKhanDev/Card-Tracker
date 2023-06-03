@@ -3,6 +3,8 @@ from flask import Flask, request, render_template
 from flask_cors import CORS
 
 import pickle
+from PIL import Image
+import numpy as np
 
 # Load the set details pickle file
 with open("tcg_cache/all_sets.pkl", "rb") as file:
@@ -100,6 +102,20 @@ def set_id_to_name(set_id):
         return set_name
     except:
         return "Set ID not found"
+
+@app.route("/upload_cards", methods = ['POST'])
+def upload_cards():
+
+
+    files = request.files.getlist("file")
+    print(files)
+    for file in files:
+        image = Image.open(file)
+        image.save(f"upload_test/{file.filename[:-4]}.png", "PNG")
+
+    return "Success"
+
+
 
 #################
 # HTML DELIVERY #

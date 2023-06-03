@@ -87,10 +87,24 @@ nav > *:not(a), nav> a > * {
     cursor: pointer;
 }
 
-.holo{
-    position:relative;
-    top: calc(-1 * var(--height));
+#upload_menu_container{
+    position:fixed;
+    top:0;
+    left:0;
+    min-width:100%;
+    min-height:100vh;
+
+    display:flex;
+    justify-content:top;
+    align-items:center;
+    flex-direction:column;
+
+    background-color:rgba(0, 0, 0, 0.923);
+    color:white;
+    padding:1em;
+    animation: fadeIn 0.2s;
 }
+
 
 /* Set Page CSS */
 .set_image{
