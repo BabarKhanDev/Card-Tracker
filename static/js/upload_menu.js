@@ -28,4 +28,13 @@ async function submit_data(){
     let status = await response.text();
     console.log(status);
 
+}   
+
+function upload_main(){
+    // Update file count when files are selected
+    document.getElementById("card-upload").addEventListener("change", function() {
+        let files = this.files;
+        let fileCountElement = document.getElementById("file-count");
+        fileCountElement.textContent = files.length + " files selected";
+    });
 }

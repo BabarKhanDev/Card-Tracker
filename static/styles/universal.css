@@ -42,7 +42,12 @@ nav > *:not(a), nav> a > * {
     margin-bottom:1em;
 }
 
-#card_padding, #card_scale{
+#settings *{
+    max-height:1.5em;
+
+}
+
+#card_padding, #card_scale, #create_upload_menu{
     margin-right:2em;
     margin-left:0.2em;
 }
@@ -87,6 +92,7 @@ nav > *:not(a), nav> a > * {
     cursor: pointer;
 }
 
+/* Upload image menu */
 #upload_menu_container{
     position:fixed;
     top:0;
@@ -105,6 +111,40 @@ nav > *:not(a), nav> a > * {
     animation: fadeIn 0.2s;
 }
 
+#upload_menu_container *{
+    margin-bottom:1em;
+}
+
+.button:hover{
+    cursor:pointer;
+    filter: brightness(50%);
+}
+.button{
+    background-color:#80FFA9;
+    color:black;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    text-align:center;
+    text-decoration: none;
+    border: none;
+    border-radius:2px;
+}
+
+.button_upload{
+    min-width:10em;
+    min-height:2em;
+
+    font-size:1.2em;
+
+    box-shadow: 2px 4px #888888;
+}
+#create_upload_menu{
+    font-size:1em;
+    background-color:#00000000
+}
 
 /* Set Page CSS */
 .set_image{

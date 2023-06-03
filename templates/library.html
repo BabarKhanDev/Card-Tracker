@@ -18,7 +18,7 @@
 
     <title>Library</title>
 </head>
-<body onload = main()>
+<body onload = "main(); upload_main(); ">
     
     <nav id = "navbar">
         <h2>User Library</h2>
@@ -35,7 +35,10 @@
         <label for="card_padding">Padding </label>
         <input type="range" id="card_padding" name="card_padding" min="1" max="15"  onChange="update_card_padding(this.value);">
 
-        <button type="button" id="create_upload_menu" onClick="show_upload_menu();"> Upload Cards </button>
+        <label for ="create_upload_menu" > Upload Cards</label>
+        <button type="button" id="create_upload_menu" onClick="show_upload_menu();" class="button"> 
+            <img src="{{ url_for('static',filename='svg/upload-file.svg') }}">
+        </button>
     </section>
 
     <section id = "cards">
@@ -44,10 +47,12 @@
 
     <div id = "upload_menu_container" style = "display:none">
 
-        <h3> Upload images of new cards to your collection! </h3>
+        <h1> Upload images of new cards to your collection! </h1>
             
-        <input id="card-upload" type="file" name="file" multiple accept="image/*" />
-        <input id="card-upload-submit" type = "submit" value="Upload" onclick = "submit_data();">
+        <input id="card-upload" type="file" name="file" multiple accept="image/*" style="display: none" />
+        <label for="card-upload" id="card-upload-label" class="button button_upload">Select files</label>
+        <span id="file-count"></span>
+        <input id="card-upload-submit" type = "submit" value="Upload" onclick = "submit_data();" class="button button_upload">
             
 
     </div>
