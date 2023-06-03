@@ -6,26 +6,26 @@ function show_upload_menu(){
 document.onkeydown = function(evt) {
     evt = evt || window.event;
     if (evt.key  == "Escape") {
-        let menu = document.getElementById("upload_menu_container")
+        let menu = document.getElementById("upload_menu_container");
         menu.style.display = "none";
     }
 };
 
 async function submit_data(){
+    
+    let files = document.getElementById("card-upload").files;
     let formData = new FormData();
 
-    let files = document.getElementById("card-upload").value
-    console.log(files)
-
-    formData.append("file", files)
-    console.log(formData)
+    for (let i = 0; i < files.length; i++) {
+        formData.append("file", files[i]);
+    }
 
     let response = await fetch("/upload_cards", {
         method:'POST',
         body: formData
-    })
+    });
 
-    let responseJSON = await response.JSON
-    console.log(responseJSON)
+    let status = await response.text();
+    console.log(status);
 
 }

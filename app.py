@@ -105,17 +105,16 @@ def set_id_to_name(set_id):
 
 @app.route("/upload_cards", methods = ['POST'])
 def upload_cards():
+    try:
+        files = request.files.getlist("file")
+        print(files)
+        for file in files:
+            image = Image.open(file)
+            image.save(f"upload_test/{file.filename[:-4]}.png", "PNG")
 
-
-    files = request.files.getlist("file")
-    print(files)
-    for file in files:
-        image = Image.open(file)
-        image.save(f"upload_test/{file.filename[:-4]}.png", "PNG")
-
-    return "Success"
-
-
+        return "Success"
+    except:
+        return "Upload Failed"
 
 #################
 # HTML DELIVERY #
