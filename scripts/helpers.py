@@ -24,16 +24,45 @@ def detect_edges(img):
     img = cv.resize(img, dsize = (9,0), fx=image_scale, fy=image_scale, interpolation=cv.INTER_CUBIC)
     img_blur = cv.GaussianBlur(img, (3,3), 0)
 
-    # Sobel Edge Detection
-    sobelx = cv.Sobel(src=img_blur, ddepth=cv.CV_64F, dx=1, dy=0, ksize=5) # Sobel Edge Detection on the X axis
-    sobely = cv.Sobel(src=img_blur, ddepth=cv.CV_64F, dx=0, dy=1, ksize=5) # Sobel Edge Detection on the Y axis
-    sobelxy = cv.Sobel(src=img_blur, ddepth=cv.CV_64F, dx=1, dy=1, ksize=5) # Combined X and Y Sobel Edge Detection
-    # Display Sobel Edge Detection Images
-
-    edges = cv.Canny(image=img_blur, threshold1=80, threshold2=80) # Canny Edge Detection
-    # Display Canny Edge Detection Image
+    edges = cv.Canny(image=img_blur, threshold1=80, threshold2=80)
 
     return img, edges
+
+# This is less accurate than ransac but it is more robust
+def bounding_box_from_edges(edges, outlier_percent = 1):
+    global image_scale
+    white_pixels = np.where(edges == 255)  # Assuming white pixels have a value of 1
+    
+    if len(white_pixels[0]) == 0:
+        # Handle the case when there are no white pixels
+        return None
+    
+    x_coordinates = white_pixels[1]
+    y_coordinates = white_pixels[0]
+
+    # Sort the x and y coordinates
+    sorted_x = np.sort(x_coordinates)
+    sorted_y = np.sort(y_coordinates)
+    
+    # Calculate the number of outliers to be removed
+    num_outliers = round(outlier_percent / 100 * len(x_coordinates))
+    
+    # Discard outliers from the sorted coordinates
+    x_without_outliers = sorted_x[num_outliers:-num_outliers]
+    y_without_outliers = sorted_y[num_outliers:-num_outliers]
+    
+    # Calculate the minimum and maximum coordinates after removing outliers
+    min_x = np.min(x_without_outliers) / image_scale
+    max_x = np.max(x_without_outliers) / image_scale
+    min_y = np.min(y_without_outliers) / image_scale
+    max_y = np.max(y_without_outliers) / image_scale
+    
+    return np.array([
+        (max_x,max_y),
+        (max_x,min_y),
+        (min_x,max_y),
+        (min_x,min_y)
+    ])
 
 # Using ransac we get the card corners
 def corners_from_edges(edges):
@@ -125,28 +154,23 @@ def compute_homography(pts_src, img):
 
     return im_dst
 
-def create_homography_for_all_cards(card_dirs):
-    for card_dir in card_dirs:
-        if os.path.exists(f"homography_cards/{card_dir}"):
+def create_homography_for_all_cards(library_dir):
+    for card_dir in os.listdir(f"{library_dir}/unsorted_cards"):
+        if os.path.exists(f"{library_dir}/homography_cards/{card_dir}"):
             continue
 
-        img = cv.imread(f"cards/{card_dir}")
+        img = cv.imread(f"{library_dir}/unsorted_cards/{card_dir}")
         _, edges = detect_edges(img)
-        pts_src = corners_from_edges(edges)
+        pts_src = bounding_box_from_edges(edges)
 
         card_homography = compute_homography(pts_src, img)
         card_homography = cv.resize(card_homography, (300, 400), card_homography, interpolation=cv.INTER_AREA)
-        cv.imwrite(f"homography_cards/{card_dir}", card_homography)
+        cv.imwrite(f"{library_dir}/homography_cards/{card_dir}", card_homography)
 
-def extract_features(model,preprocess, path):
+def extract_features(model,preprocess, path, image=None):
 
-    card_dir = path.split("/")[1:]
-    if os.path.exists(f"features/{card_dir[:-4]}.pkl"):
-        with open(f"features/{card_dir[:-4]}.pkl", "rb") as file:
-            return pickle.load(file)
-
-    # Process image
-    image = Image.open(path).convert('RGB')
+    if image is None:
+        image = Image.open(f"{path[:-4]}.jpg").convert('RGB')
     batch = preprocess(image).unsqueeze(0)
 
     # Move to device
@@ -156,7 +180,9 @@ def extract_features(model,preprocess, path):
     # Calculate Features
     features = model(batch).squeeze(0)
     del batch
-    return features
+
+    with open(path, "wb") as file:
+        pickle.dump(features, file)
 
 def create_model_and_preprocess():
 
@@ -173,16 +199,16 @@ def create_model_and_preprocess():
 
     return model, preprocess
 
-def calculate_features_for_all_cards(card_dirs):
+def calculate_features_for_all_cards(card_dirs, library_dir):
 
     model, preprocess = create_model_and_preprocess()
 
     for card_dir in card_dirs:
-        if os.path.exists(f"features/{card_dir[:-4]}.pkl"):
+        if os.path.exists(f"{library_dir}/features/{card_dir[:-4]}.pkl"):
             continue
 
-        features = extract_features(model, preprocess, f"homography_cards/{card_dir}")
-        with open(f"features/{card_dir[:-4]}.pkl", "wb") as file:
+        features = extract_features(model, preprocess, f"{library_dir}/homography_cards/{card_dir}")
+        with open(f"{library_dir}/features/{card_dir[:-4]}.pkl", "wb") as file:
             pickle.dump(features, file)
 
 def find_closest_match(features, existing_cards):
@@ -200,6 +226,8 @@ def find_closest_match(features, existing_cards):
         
     return matches
 
+# Given the features of one of our cards, 
+# this function will return the closest matches
 def match_with_all_cards(features):
 
     loss_func = torch.nn.MSELoss(reduction = "mean")
@@ -207,33 +235,22 @@ def match_with_all_cards(features):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     features = features.to(device)
 
-    sets = os.listdir("card_db/features")
-    
-    loading_feature_time = 0
-    calc_loss_time = 0
-    match_adding_time = 0
+    sets = os.listdir("../tcg_cache/features")
 
-    for set in tqdm(sets):
+    for set in sets:
 
-        feature_dirs = os.listdir(f"card_db/features/{set}")
+        feature_dirs = os.listdir(f"../tcg_cache/features/{set}")
         for other_features_dir in feature_dirs:
             
             # Load the other cards features
-            load_features_start = perf_counter()
-            with open(f"card_db/features/{set}/{other_features_dir}", "rb") as file:
+            with open(f"../tcg_cache/features/{set}/{other_features_dir}", "rb") as file:
                 other_features = pickle.load(file)
-            load_features_end = perf_counter()
-            loading_feature_time += load_features_end - load_features_start
 
             # Compare the other card with this one
-            loss_calc_start = perf_counter()
             loss = loss_func(features, other_features.to(device))
             loss = loss.item()
-            loss_calc_end = perf_counter()
-            calc_loss_time += loss_calc_end - loss_calc_start
 
             # If they are a good match then add to matches
-            add_match_start = perf_counter()
             if len(matches) <= 3 or loss < matches[:,2].max():
                 matches = np.append(
                     matches,
@@ -247,14 +264,7 @@ def match_with_all_cards(features):
                 # Sort the array and take the first 3
                 matches = matches[matches[:, 2].argsort()][:3]
 
-            add_match_end = perf_counter()
-            match_adding_time += add_match_end - add_match_start
-
             del other_features
-
-    print(f"Time to load features: {loading_feature_time}")                
-    print(f"Time to calc loss: {calc_loss_time}")   
-    print(f"Time to add match: {match_adding_time}")   
 
     del features
 
