@@ -13,7 +13,6 @@ Please see [Project Structure.md](PROJECT STRUCTURE.md) for more.
 
 # TODO
 1. Use a proper database instead of a python list
-2. Create a web ui
-3. Add the ability to resolve false positive matches
-4. Add the ability to resolve false negative matches
-5. Add the ability to scan a binder page in, it should automatically split the binder image into n separate images
+2. Add the ability to resolve false positive matches
+3. Add the ability to resolve false negative matches
+4. Add the ability to scan an nxm binder page in, it should automatically split the binder image into n*m separate images
