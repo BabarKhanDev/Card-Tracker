@@ -9,7 +9,7 @@ Right now cards need to be on a plain background.
 The app then uses a homography to warp the image so that the card fills a 300x400 box.
 The warped image is then passed into a VGG16 feature extractor and the feature is pickled and saved. We compare these features to see if the cards are the same.
 
-Please see [Project Structure.md](PROJECT STRUCTURE.md) for more.
+Please see [Project Structure.md](PROJECT%20STRUCTURE.md) for more.
 
 # TODO
 1. Use a proper database instead of a python list
