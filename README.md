@@ -24,6 +24,13 @@ pip install -r requirements.txt
 flask run
 ```
 
+# Running with Docker
+
+```bash
+docker build -t card_tracker .
+docker run -d --name card_tracker -p 8080:8080 card_tracker
+```
+
 # TODO
 1. Use a proper database instead of a python list
 2. Add the ability to resolve false positive matches
