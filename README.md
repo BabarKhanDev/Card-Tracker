@@ -7,9 +7,22 @@ I also want to be able to take photos of a binder of cards and have that uploade
 You place photos of the cards in the directory /cards. 
 Right now cards need to be on a plain background.
 The app then uses a homography to warp the image so that the card fills a 300x400 box.
-The warped image is then passed into a VGG16 feature extractor and the feature is pickled and saved. We compare these features to see if the cards are the same.
+The warped image is then passed into a VGG16 feature extractor and the feature is pickled and saved. 
+We compare these features to see if the cards are the same.
 
-Please see [Project Structure.md](PROJECT%20STRUCTURE.md) for more.
+# Setup
+Create config file and insert api key, you can get this from [pokemontcg.io](https://pokemontcg.io/)
+```bash
+cp config.ini.example config.ini
+```
+
+# Running without docker
+```bash
+python3 -m venv venv
+. venv/bin/activate (linux) or ./venv/Scripts/activate (win)
+pip install -r requirements.txt
+flask run
+```
 
 # TODO
 1. Use a proper database instead of a python list
