@@ -4,7 +4,6 @@ from flask_cors import CORS
 
 import pickle
 from PIL import Image
-import numpy as np
 
 # Load the set details pickle file
 with open("tcg_cache/all_sets.pkl", "rb") as file:
@@ -13,48 +12,51 @@ with open("tcg_cache/all_sets.pkl", "rb") as file:
 app = Flask(__name__)
 CORS(app)
 
+
 #################
 # JSON DELIVERY #
 #################
+
 
 @app.get("/all_sets")
 def get_all_sets():
     return all_sets
 
-# This will return all of the cards in a set
+
+# This will return all the cards in a set
 @app.get("/set/<set_id>")
 def get_set(set_id):
-
     try:
         with open(f"tcg_cache/card_data/{set_id}.pkl", "rb") as file:
-            cards_in_set =  pickle.load(file)
-        
+            cards_in_set = pickle.load(file)
+
         return cards_in_set
 
     except:
         return "Set Not Found"
 
-# This will return the wishlished cards 
+
+# This will return the wishlished cards
 # Posting allows you to add/remove a card from the wishlist
-@app.route("/wishlist_json", methods = ["GET", "POST"])
+@app.route("/wishlist_json", methods=["GET", "POST"])
 def get_wishlist():
     # GET - Send the wishlist
     if request.method == 'GET':
         with open("user_library/wishlist.pkl", "rb") as file:
             return pickle.load(file)
-    
+
     # POST - Add the amount specified to the wishlist
     with open("user_library/wishlist.pkl", "rb") as file:
         wishlist = pickle.load(file)
 
     print(request.form)
     card_id = request.form["card_id"]
-    amount  = int(request.form["amount"])
+    amount = int(request.form["amount"])
 
     if card_id in wishlist:
         wishlist[card_id] += amount
     else:
-        wishlist[card_id]  = amount
+        wishlist[card_id] = amount
 
     if wishlist[card_id] <= 0:
         wishlist.pop(card_id)
@@ -64,9 +66,9 @@ def get_wishlist():
 
     return wishlist
 
+
 @app.get("/wishlist_cards")
 def get_wishlist_cards():
-
     with open("user_library/wishlist.pkl", "rb") as file:
         wishlist = pickle.load(file)
 
@@ -92,8 +94,9 @@ def get_wishlist_cards():
         # Find the card within that set that has the right number
         filtered_cards = list(filter(lambda x: x.number == card_number, entire_set))
         card_data.append(filtered_cards[0])
-    
+
     return card_data
+
 
 @app.get("/set_id_to_name/<set_id>")
 def set_id_to_name(set_id):
@@ -103,7 +106,8 @@ def set_id_to_name(set_id):
     except:
         return "Set ID not found"
 
-@app.route("/upload_cards", methods = ['POST'])
+
+@app.route("/upload_cards", methods=['POST'])
 def upload_cards():
     try:
         files = request.files.getlist("file")
@@ -116,6 +120,7 @@ def upload_cards():
     except:
         return "Upload Failed"
 
+
 #################
 # HTML DELIVERY #
 #################
@@ -124,7 +129,7 @@ def upload_cards():
 @app.get("/explore/<set_id>")
 def explore_set(set_id):
     set_name = set_id_to_name(set_id)
-    return render_template('set.html', set_name = set_name)
+    return render_template('set.html', set_name=set_name)
 
 
 # This will allow you to explore all sets
@@ -132,10 +137,12 @@ def explore_set(set_id):
 def explore_sets():
     return render_template('explore.html')
 
+
 # This will allow you to explore the library
 @app.get("/library")
 def explore_library():
     return render_template('library.html')
+
 
 @app.get("/wishlist")
 def explore_wishlist():
