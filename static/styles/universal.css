@@ -21,7 +21,7 @@ a{
 }
 
 nav{
-    width:calc(100%-1em);
+    width:calc(100% - 1em);
     border-bottom:solid 1px black;
     display:flex;
     flex-direction: row;
@@ -110,7 +110,6 @@ nav > *:not(a), nav> a > * {
     min-height:100vh;
 
     display:flex;
-    justify-content:top;
     align-items:center;
     flex-direction:column;
 
