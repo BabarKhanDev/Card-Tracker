@@ -27,8 +27,7 @@ flask run
 # Running with Docker
 
 ```bash
-docker build -t card_tracker .
-docker run -d --name card_tracker -p 8080:8080 card_tracker
+docker compose up -d --build
 ```
 
 # TODO

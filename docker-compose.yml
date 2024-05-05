@@ -3,17 +3,17 @@ version: "3"
 services:
   db:
     # latest image as of writing
-    image: postgres:16.2
+    image: postgres:12.17
     environment:
-      POSTGRES_DATABASE: card-tracker
+      POSTGRES_USER: "user"
+      POSTGRES_DATABASE: cards
       POSTGRES_PASSWORD: "heresapassword"
     volumes:
-      - "dbfiles:/var/lib/postgresql/data"
+      - "dbvolume:/var/lib/postgresql/data"
   flask:
     build: .
     ports:
       - "8080:8080"
 
 volumes:
-  dbfiles:
-  kafkafiles:
+  dbvolume:

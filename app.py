@@ -5,9 +5,18 @@ from flask_cors import CORS
 import pickle
 from PIL import Image
 
-# Load the set details pickle file
-with open("tcg_cache/all_sets.pkl", "rb") as file:
-    all_sets = pickle.load(file)
+from scripts.cards import get_all_sets
+from scripts.config import load_tcg_api_key, load_database_config
+from scripts.database import connect
+
+# Load all sets
+tcg_api_key = load_tcg_api_key("config.ini")
+all_sets = get_all_sets(tcg_api_key)
+
+# Connect to database
+config = load_database_config("config.ini")
+conn = connect(config)
+print(conn)
 
 app = Flask(__name__)
 CORS(app)
@@ -16,7 +25,6 @@ CORS(app)
 #################
 # JSON DELIVERY #
 #################
-
 
 @app.get("/all_sets")
 def get_all_sets():
