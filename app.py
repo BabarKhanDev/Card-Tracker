@@ -9,15 +9,15 @@ from scripts.cards import get_all_sets
 from scripts.config import load_tcg_api_key, load_database_config
 from scripts.database import connect
 
-# Load all sets
-tcg_api_key = load_tcg_api_key("config.ini")
-all_sets = get_all_sets(tcg_api_key)
-
 # Connect to database
 config = load_database_config("config.ini")
 conn = connect(config)
-print(conn)
 
+# Load all sets
+tcg_api_key = load_tcg_api_key("config.ini")
+all_sets = get_all_sets(tcg_api_key, conn)
+
+# Set up flask
 app = Flask(__name__)
 CORS(app)
 
