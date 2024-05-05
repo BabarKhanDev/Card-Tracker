@@ -21,6 +21,7 @@ cp config.ini.example config.ini
 python3 -m venv venv
 . venv/bin/activate (linux) or ./venv/Scripts/activate (win)
 pip install -r requirements.txt
+python3 setup.py
 flask run
 ```
 

@@ -9,6 +9,9 @@ services:
       POSTGRES_PASSWORD: heresapassword
     volumes:
       - "dbvolume:/var/lib/postgresql/data"
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
 
   pgadmin:
     image: dpage/pgadmin4
