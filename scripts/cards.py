@@ -7,5 +7,5 @@ def cache_all_sets(tcg_api_key: str, conn) -> None:
     RestClient.configure(tcg_api_key)
     sets = Set.all()
 
-    for set in sets:
-        cache_set(conn, set)
+    for s in sets:
+        cache_set(conn, s)

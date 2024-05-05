@@ -7,7 +7,7 @@ from PIL import Image
 
 from scripts.cards import cache_all_sets
 from scripts.config import load_tcg_api_key, load_database_config
-from scripts.database import connect
+from scripts.database import connect, get_cards, get_sets, get_wishlist, add_to_wishlist, remove_from_wishlist
 
 # Connect to database
 config = load_database_config("config.ini")
@@ -29,94 +29,44 @@ CORS(app)
 # This returns some details about every set
 @app.get("/all_sets")
 def get_all_sets():
-    with conn.cursor() as cur:
-        cur.execute("select id, image_uri, name, series, release_date from sdk_cache.set")
-        all_sets = cur.fetchall()
-        return [{"id": set[0], "image_url": set[1], "name": set[2], "series": set[3], "release_date": set[4]} for set in all_sets]
+    return get_sets(conn)
 
 
 # This will return all the cards in a set
 @app.get("/set/<set_id>")
 def get_set(set_id):
-    try:
-        with open(f"tcg_cache/card_data/{set_id}.pkl", "rb") as file:
-            cards_in_set = pickle.load(file)
-
-        return cards_in_set
-
-    except:
-        return "Set Not Found"
+    return get_cards(conn, set_id)
 
 
 # This will return the wishlished cards
 # Posting allows you to add/remove a card from the wishlist
-@app.route("/wishlist_json", methods=["GET", "POST"])
+@app.route("/wishlist", methods=["GET", "POST"])
 def get_wishlist():
     # GET - Send the wishlist
     if request.method == 'GET':
-        with open("user_library/wishlist.pkl", "rb") as file:
-            return pickle.load(file)
+        return get_wishlist()
 
-    # POST - Add the amount specified to the wishlist
-    with open("user_library/wishlist.pkl", "rb") as file:
-        wishlist = pickle.load(file)
-
-    print(request.form)
+    # POST - Add/Remove card from the wishlist
     card_id = request.form["card_id"]
     amount = int(request.form["amount"])
 
-    if card_id in wishlist:
-        wishlist[card_id] += amount
+    if amount > 0:
+        add_to_wishlist(conn, card_id)
     else:
-        wishlist[card_id] = amount
+        remove_from_wishlist(conn, card_id)
 
-    if wishlist[card_id] <= 0:
-        wishlist.pop(card_id)
-
-    with open("user_library/wishlist.pkl", "wb") as file:
-        pickle.dump(wishlist, file)
-
-    return wishlist
+    return get_wishlist()
 
 
-@app.get("/wishlist_cards")
-def get_wishlist_cards():
-    with open("user_library/wishlist.pkl", "rb") as file:
-        wishlist = pickle.load(file)
-
-    card_data = []
-    for card in wishlist:
-
-        # Split the wishlist item up into the set and number
-        card_set = card.split("-")[0]
-        card_number = card.split("-")[1]
-
-        # Remove leading zeros from string
-        non_zero_found = False
-        for char in card_number[:]:
-            if char == '0':
-                card_number = card_number[1:]
-            else:
-                break
-
-        # Load the cached data for that set
-        with open(f"tcg_cache/card_data/{card_set}.pkl", "rb") as file:
-            entire_set = pickle.load(file)
-
-        # Find the card within that set that has the right number
-        filtered_cards = list(filter(lambda x: x.number == card_number, entire_set))
-        card_data.append(filtered_cards[0])
-
-    return card_data
-
-
+# Get the name of a set with its id
 @app.get("/set_id_to_name/<set_id>")
 def set_id_to_name(set_id):
     try:
-        set_name = next(iter(filter(lambda x: x["id"] == set_id, all_sets)))["name"]
-        return set_name
-    except:
-        return "Set ID not found"
+        with conn.cursor() as cur:
+            cur.execute("select name from sdk_cache.set where id = %s", (set_id,))
+            return cur.fetchone()[0]
+    except Exception as e:
+        return f"Set ID not found: {e}"
 
 
 @app.route("/upload_cards", methods=['POST'])
