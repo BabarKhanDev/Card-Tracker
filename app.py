@@ -5,7 +5,7 @@ from flask_cors import CORS
 import pickle
 from PIL import Image
 
-from scripts.cards import get_all_sets
+from scripts.cards import cache_all_sets
 from scripts.config import load_tcg_api_key, load_database_config
 from scripts.database import connect
 
@@ -13,9 +13,9 @@ from scripts.database import connect
 config = load_database_config("config.ini")
 conn = connect(config)
 
-# Load all sets
+# Cache all sets
 tcg_api_key = load_tcg_api_key("config.ini")
-all_sets = get_all_sets(tcg_api_key, conn)
+cache_all_sets(tcg_api_key, conn)
 
 # Set up flask
 app = Flask(__name__)
@@ -28,7 +28,10 @@ CORS(app)
 
 @app.get("/all_sets")
 def get_all_sets():
-    return all_sets
+    with conn.cursor() as cur:
+        cur.execute("select id, image_uri, name, series, release_date from sdk_cache.set")
+        all_sets = cur.fetchall()
+        return [{"id": set[0], "image_url": set[1], "name": set[2], "series": set[3], "release_date": set[4]} for set in all_sets]
 
 
 # This will return all the cards in a set
