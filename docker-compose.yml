@@ -2,20 +2,19 @@ version: "3"
 
 services:
   db:
-    # latest image as of writing
-    image: postgres:12.17
+    image: postgres:16.2
     environment:
-      POSTGRES_USER: "user"
+      POSTGRES_USER: cards
       POSTGRES_DATABASE: cards
-      POSTGRES_PASSWORD: "heresapassword"
+      POSTGRES_PASSWORD: heresapassword
     volumes:
       - "dbvolume:/var/lib/postgresql/data"
 
   pgadmin:
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: your@email.com
-      PGADMIN_DEFAULT_PASSWORD: yourpassword
+      PGADMIN_DEFAULT_EMAIL: cards@email.com
+      PGADMIN_DEFAULT_PASSWORD: heresapassword
     ports:
       - "8081:80"
 
