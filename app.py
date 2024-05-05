@@ -26,6 +26,7 @@ CORS(app)
 # JSON DELIVERY #
 #################
 
+# This returns some details about every set
 @app.get("/all_sets")
 def get_all_sets():
     with conn.cursor() as cur:
