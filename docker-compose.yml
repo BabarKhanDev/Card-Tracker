@@ -10,6 +10,15 @@ services:
       POSTGRES_PASSWORD: "heresapassword"
     volumes:
       - "dbvolume:/var/lib/postgresql/data"
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: your@email.com
+      PGADMIN_DEFAULT_PASSWORD: yourpassword
+    ports:
+      - "8081:80"
+
   flask:
     build: .
     ports:
