@@ -25,7 +25,8 @@ ALTER TABLE sdk_cache.set
 CREATE TABLE IF NOT EXISTS sdk_cache.card
 (
     id text COLLATE pg_catalog."default" NOT NULL,
-    image_uri text COLLATE pg_catalog."default",
+    image_uri_large text COLLATE pg_catalog."default",
+    image_uri_small text COLLATE pg_catalog."default",
     name text COLLATE pg_catalog."default",
     set_id text COLLATE pg_catalog."default",
     CONSTRAINT card_pkey PRIMARY KEY (id),

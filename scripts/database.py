@@ -33,15 +33,15 @@ def get_cards(conn, set_id: str):
         cur.execute("select * from sdk_cache.card where set_id = %s", (set_id,))
         cached_cards = cur.fetchall()
         if len(cached_cards) > 0:
-            return [{"id": c[0], "image_url": c[1], "name": c[2], "set_id": c[3]} for c in cached_cards]
+            return [{"id": c[0], "image_url_large": c[1], "image_url_small": c[2], "name": c[3], "set_id": c[4]} for c in cached_cards]
 
         # We have not cached the cards yet, cache them and return
         cards = Card.where(q=f'set.id:{set_id}')
         for card in cards:
-            cur.execute("INSERT INTO sdk_cache.card (id, image_uri, name, set_id) VALUES (%s, %s, %s, %s)",
-                        (card.id, card.images.large, card.name, set_id))
+            cur.execute("INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
+                        (card.id, card.images.large, card.images.small, card.name, set_id))
         conn.commit()
-        return [{"id": c.id, "image_uri": c.images.large, "name": c.name, "set_id": set_id} for c in cards]
+        return [{"id": c.id, "image_uri_large": c.images.large, "image_uri_small": c.images.small, "name": c.name, "set_id": set_id} for c in cards]
 
 
 def get_sets(conn):
