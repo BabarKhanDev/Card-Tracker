@@ -87,6 +87,11 @@ def upload_cards():
 # HTML DELIVERY #
 #################
 
+@app.get("/")
+def default():
+    return redirect("/library")
+
+
 # This will allow you to explore a given set
 @app.get("/explore/<set_id>")
 def explore_set(set_id):
