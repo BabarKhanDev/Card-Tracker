@@ -16,16 +16,7 @@ Create config file and insert api key, you can get this from [pokemontcg.io](htt
 cp config.ini.example config.ini
 ```
 
-# Running without docker
-```bash
-python3 -m venv venv
-. venv/bin/activate (linux) or ./venv/Scripts/activate (win)
-pip install -r requirements.txt
-python3 setup.py
-flask run
-```
-
-# Running with Docker
+# Running
 
 ```bash
 docker compose up -d --build
