@@ -1,8 +1,6 @@
 # These will handle the requests from the web ui
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect
 from flask_cors import CORS
-
-import pickle
 from PIL import Image
 
 from scripts.cards import cache_all_sets
