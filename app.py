@@ -38,11 +38,11 @@ def get_set(set_id):
 
 # This will return the wishlished cards
 # Posting allows you to add/remove a card from the wishlist
-@app.route("/wishlist", methods=["GET", "POST"])
-def get_wishlist():
+@app.route("/wishlist_json", methods=["GET", "POST"])
+def wishlist():
     # GET - Send the wishlist
     if request.method == 'GET':
-        return get_wishlist()
+        return get_wishlist(conn)
 
     # POST - Add/Remove card from the wishlist
     card_id = request.form["card_id"]
@@ -53,7 +53,7 @@ def get_wishlist():
     else:
         remove_from_wishlist(conn, card_id)
 
-    return get_wishlist()
+    return get_wishlist(conn)
 
 
 # Get the name of a set with its id
