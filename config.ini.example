@@ -1,4 +1,3 @@
-
 ; Fill in below with your details
 [pokemontcg]
 API_key=
@@ -6,5 +5,5 @@ API_key=
 [postgresql]
 host=localhost
 database=cards
-user=
-password=
+user=cards
+password=heresapassword
