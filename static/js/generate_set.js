@@ -11,7 +11,7 @@ async function main() {
     card_data.sort((a, b) => a.id - b.id)
 
     // Get the wishlist
-    let response_wishlist = await fetch("/wishlist_json")
+    let response_wishlist = await fetch("/wishlist_id")
     let wishlist = await response_wishlist.json()
 
     card_data.forEach(async function (card) {

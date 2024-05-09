@@ -69,6 +69,7 @@ ALTER TABLE IF EXISTS user_data.library
 CREATE TABLE IF NOT EXISTS user_data.wishlist
 (
     card_id text COLLATE pg_catalog."default" NOT NULL,
+    quantity integer,
     CONSTRAINT wishlist_pkey PRIMARY KEY (card_id),
     CONSTRAINT card_id FOREIGN KEY (card_id)
         REFERENCES sdk_cache.card (id) MATCH SIMPLE

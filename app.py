@@ -1,11 +1,11 @@
 # These will handle the requests from the web ui
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, jsonify
 from flask_cors import CORS
 from PIL import Image
 
 from scripts.cards import cache_all_sets
 from scripts.config import load_tcg_api_key, load_database_config
-from scripts.database import connect, get_cards, get_sets, get_wishlist, add_to_wishlist, remove_from_wishlist
+from scripts.database import connect, get_cards, get_sets, get_wishlist, add_to_wishlist, get_card_from_id
 
 # Connect to database
 config = load_database_config("config.ini")
@@ -36,22 +36,25 @@ def get_set(set_id):
     return get_cards(conn, set_id)
 
 
-# This will return the wishlished cards
+# Get details of a card
+@app.get("/card/<card_id>")
+def get_card(card_id):
+    out = get_card_from_id(conn, card_id)
+    return out
+
+
+# This will return the ids of wishlisted cards
 # Posting allows you to add/remove a card from the wishlist
-@app.route("/wishlist_json", methods=["GET", "POST"])
+@app.route("/wishlist_id", methods=["GET", "POST"])
 def wishlist():
     # GET - Send the wishlist
     if request.method == 'GET':
         return get_wishlist(conn)
 
-    # POST - Add/Remove card from the wishlist
+    # POST - Add/Remove cards from the wishlist
     card_id = request.form["card_id"]
     amount = int(request.form["amount"])
-
-    if amount > 0:
-        add_to_wishlist(conn, card_id)
-    else:
-        remove_from_wishlist(conn, card_id)
+    add_to_wishlist(conn, card_id, amount)
 
     return get_wishlist(conn)
 

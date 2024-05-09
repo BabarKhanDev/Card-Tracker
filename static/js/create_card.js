@@ -43,7 +43,7 @@ async function update_wishlist(id, amount, delete_if_wishlist_zero) {
     formData.append('card_id', id);
     formData.append('amount', amount);
 
-    let response = await fetch(card_api_url + "/wishlist_json", {
+    let response = await fetch("/wishlist_id", {
         method: 'POST',
         body: formData
     })
@@ -53,7 +53,7 @@ async function update_wishlist(id, amount, delete_if_wishlist_zero) {
 
     // if we unwishlist then the id will not be in the wishlist dictionary
     if (id in wishlist) {
-        counter.innerHTML = "In Wishlist: " + String(wishlist[id])
+        counter.innerHTML = "Wishlist: " + String(wishlist[id])
     } else {
         if (delete_if_wishlist_zero) {
             let card_container = document.querySelector('[wishlist_id=' + id + ']');

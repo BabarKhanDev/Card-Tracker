@@ -1,6 +1,7 @@
 import psycopg2
 from pokemontcgsdk import Set
 from pokemontcgsdk import Card
+from flask import Response
 
 
 def connect(config):
@@ -28,20 +29,33 @@ def cache_set(conn, s: Set) -> None:
 
 
 def get_cards(conn, set_id: str):
-    with conn.cursor() as cur:
-        # Check if we have cached the cards already
-        cur.execute("select * from sdk_cache.card where set_id = %s", (set_id,))
-        cached_cards = cur.fetchall()
-        if len(cached_cards) > 0:
-            return [{"id": c[0], "image_url_large": c[1], "image_url_small": c[2], "name": c[3], "set_id": c[4]} for c in cached_cards]
+    try:
+        with conn.cursor() as cur:
+            # Check if we have cached the cards already
+            cur.execute("select * from sdk_cache.card where set_id = %s", (set_id,))
+            cached_cards = cur.fetchall()
+            if len(cached_cards) > 0:
+                return [{"id": c[0], "image_url_large": c[1], "image_url_small": c[2], "name": c[3], "set_id": c[4]} for c in cached_cards]
 
-        # We have not cached the cards yet, cache them and return
-        cards = Card.where(q=f'set.id:{set_id}')
-        for card in cards:
-            cur.execute("INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
-                        (card.id, card.images.large, card.images.small, card.name, set_id))
-        conn.commit()
-        return [{"id": c.id, "image_uri_large": c.images.large, "image_uri_small": c.images.small, "name": c.name, "set_id": set_id} for c in cards]
+            # We have not cached the cards yet, cache them and return
+            cards = Card.where(q=f'set.id:{set_id}')
+            for card in cards:
+                cur.execute("INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
+                            (card.id, card.images.large, card.images.small, card.name, set_id))
+            conn.commit()
+            return [{"id": c.id, "image_uri_large": c.images.large, "image_uri_small": c.images.small, "name": c.name, "set_id": set_id} for c in cards]
+    except Exception as e:
+        return Response(str(e), status=404, mimetype='application/json')
+
+
+def get_card_from_id(conn, card_id: str):
+    try:
+        with conn.cursor() as cur:
+            cur.execute("select * from sdk_cache.card where id = %s", (card_id,))
+            d = cur.fetchone()
+            return {"id": d[0], "image_url_large": d[1], "image_url_small": d[2], "name": d[3], "set_id": d[4]}
+    except Exception as e:
+        return Response(str(e), status=404, mimetype='application/json')
 
 
 def get_sets(conn):
@@ -61,15 +75,32 @@ def get_wishlist(conn):
     with conn.cursor() as cur:
         cur.execute("select * from user_data.wishlist")
         wishlist_cards = cur.fetchall()
-        return [{"id": card[0]} for card in wishlist_cards]
+        return {card[0]: card[1] for card in wishlist_cards}
 
 
-def add_to_wishlist(conn, card_id: str):
+def remove_from_wishlist(conn, card_id: str, quantity: int = 1):
+    return add_to_wishlist(conn, card_id, quantity * -1)
+
+
+def add_to_wishlist(conn, card_id: str, quantity: int = None):
+
+    if not in_wishlist(conn, card_id):
+        with conn.cursor() as cur:
+            cur.execute("insert into user_data.wishlist values (%s, 0) ", (card_id, ))
+            conn.commit()
+
+    if quantity is None:
+        with conn.cursor() as cur:
+            cur.execute("delete from user_data.wishlist where card_id = %s", (card_id,))
+            conn.commit()
+        return
+
     with conn.cursor() as cur:
-        if cur.execute("select count(*) from user_data.wishlist where card_id = %s", (card_id,)).fetchone()[0] == 0:
-            cur.execute("insert into user_data.wishlist (card_id) values (%s)", (card_id,))
+        cur.execute("UPDATE user_data.wishlist SET quantity = quantity + %s WHERE card_id = %s", (quantity, card_id,))
+        cur.execute("delete from user_data.wishlist where quantity < 0")
+        conn.commit()
 
 
-def remove_from_wishlist(conn, card_id: str):
-    with conn.cursor() as cur:
-        cur.execute("delete from user_data.wishlist where card_id = %s", (card_id,))
+def in_wishlist(conn, card_id: str):
+    wishlist = get_wishlist(conn)
+    return card_id in wishlist
