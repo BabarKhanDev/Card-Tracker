@@ -7,7 +7,6 @@ async function main() {
     let response_wishlist = await fetch("/wishlist_id")
     let wishlist_ids = await response_wishlist.json()
     let wishlist_cards = []
-    console.log(wishlist_ids)
 
     // Get the set of each card from /card/card_id
     let wishlist_sets = new Set()
@@ -17,15 +16,12 @@ async function main() {
         wishlist_cards.push(card_details)
         wishlist_sets.add(card_details.set_id)
     }
-    console.log(wishlist_sets)
-    console.log(wishlist_cards)
 
     // Get a sorted list of all set ids that we have wishlisted
     let response_sets = await fetch("/all_sets")
     let all_sets = await response_sets.json()
     let all_set_ids = all_sets.map(obj => obj.id)
     let sorted_wishlist_sets = all_set_ids.filter(name => wishlist_sets.has(name));
-    console.log(sorted_wishlist_sets)
 
     // Create a section for each set
     let id_to_name = all_sets.map(obj => [obj.id, obj.name])
