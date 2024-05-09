@@ -1,9 +1,9 @@
-async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_wishlist = true, delete_if_wishlist_zero = false) {
+async function generate_card(name, id, small_img, large_img, wishlist_amount, show_wishlist = true, delete_if_wishlist_zero = false) {
     let img_element = document.createElement("img")
     img_element.setAttribute("alt", name + " card")
     img_element.setAttribute("class", "card_image")
-    img_element.setAttribute("src", small_src)
-    img_element.onclick = async () => generate_big_card(imgsrc, name + " card")
+    img_element.setAttribute("src", small_img)
+    img_element.onclick = async () => generate_big_card(large_img, name + " card")
 
     let wishlist_add = document.createElement("div")
     wishlist_add.setAttribute("class", "wishlist_add")
@@ -23,16 +23,14 @@ async function generate_card(name, id, small_src, imgsrc, wishlist_amount, show_
     let wishlist_container = document.createElement("div")
     wishlist_container.setAttribute("id", "wishlist_container-" + id)
     wishlist_container.setAttribute("class", "wishlist_container")
-    wishlist_container.appendChild(wishlist_sub)
-    wishlist_container.appendChild(wishlist_count)
-    wishlist_container.appendChild(wishlist_add)
+    wishlist_container.append(wishlist_sub, wishlist_count, wishlist_add)
 
     let card_element = document.createElement("div")
     card_element.setAttribute("class", "card")
     card_element.setAttribute("wishlist_id", id)
-    card_element.appendChild(img_element)
+    card_element.append(img_element)
     if (show_wishlist) {
-        card_element.appendChild(wishlist_container)
+        card_element.append(wishlist_container)
     }
 
     return card_element
@@ -66,20 +64,6 @@ async function update_wishlist(id, amount, delete_if_wishlist_zero) {
 
 }
 
-function close_big_card() {
-    let cards = document.querySelectorAll(".big_card_container")
-    cards.forEach(card => {
-        card.remove()
-    })
-}
-
-document.onkeydown = function (evt) {
-    evt = evt || window.event;
-    if (evt.key == "Escape") {
-        close_big_card()
-    }
-};
-
 function generate_big_card(imgsrc, alt) {
 
     let big_card_container = document.createElement("div")
@@ -101,3 +85,17 @@ function generate_big_card(imgsrc, alt) {
     document.body.appendChild(big_card_container)
 
 }
+
+function close_big_card() {
+    let cards = document.querySelectorAll(".big_card_container")
+    cards.forEach(card => {
+        card.remove()
+    })
+}
+
+document.onkeydown = function (evt) {
+    evt = evt || window.event;
+    if (evt.key === "Escape") {
+        close_big_card()
+    }
+};
