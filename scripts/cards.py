@@ -5,7 +5,5 @@ from scripts.database import cache_set
 
 def cache_all_sets(tcg_api_key: str, conn) -> None:
     RestClient.configure(tcg_api_key)
-    sets = Set.all()
-
-    for s in sets:
+    for s in Set.all():
         cache_set(conn, s)
