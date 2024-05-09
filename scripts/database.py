@@ -97,10 +97,40 @@ def add_to_wishlist(conn, card_id: str, quantity: int = None):
 
     with conn.cursor() as cur:
         cur.execute("UPDATE user_data.wishlist SET quantity = quantity + %s WHERE card_id = %s", (quantity, card_id,))
-        cur.execute("delete from user_data.wishlist where quantity < 0")
+        cur.execute("delete from user_data.wishlist where quantity <= 0")
         conn.commit()
 
 
 def in_wishlist(conn, card_id: str):
     wishlist = get_wishlist(conn)
     return card_id in wishlist
+
+
+def get_library(conn):
+    with conn.cursor() as cur:
+        cur.execute("select * from user_data.library")
+        library_cards = cur.fetchall()
+        return {card[0]: card[1] for card in library_cards}
+
+
+def add_to_library(conn, card_id: str, quantity: int = None):
+    if not in_library(conn, card_id):
+        with conn.cursor() as cur:
+            cur.execute("insert into user_data.library values (%s, 0) ", (card_id, ))
+            conn.commit()
+
+    if quantity is None:
+        with conn.cursor() as cur:
+            cur.execute("delete from user_data.library where card_id = %s", (card_id,))
+            conn.commit()
+        return
+
+    with conn.cursor() as cur:
+        cur.execute("UPDATE user_data.library SET quantity = quantity + %s WHERE card_id = %s", (quantity, card_id,))
+        cur.execute("delete from user_data.library where quantity <= 0")
+        conn.commit()
+
+
+def in_library(conn, card_id: str):
+    library = get_library(conn)
+    return card_id in library

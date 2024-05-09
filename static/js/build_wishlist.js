@@ -43,7 +43,7 @@ async function main() {
         let wanted = wishlist_ids[card.id]
         let wishlist_id = card.id
         let set_id = card.set_id
-        let card_element = await generate_card(card.name, wishlist_id, card.image_url_small, card.image_url_large, wanted, true, true)
+        let card_element = await generate_card(card.id)
         document.getElementById(set_id + "_cards").appendChild(card_element)
     }
 

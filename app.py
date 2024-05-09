@@ -5,7 +5,8 @@ from PIL import Image
 
 from scripts.cards import cache_all_sets
 from scripts.config import load_tcg_api_key, load_database_config
-from scripts.database import connect, get_cards, get_sets, get_wishlist, add_to_wishlist, get_card_from_id
+from scripts.database import (connect, get_cards, get_sets, get_wishlist, add_to_wishlist, get_library, add_to_library,
+                              get_card_from_id)
 
 # Connect to database
 config = load_database_config("config.ini")
@@ -57,6 +58,22 @@ def wishlist():
     add_to_wishlist(conn, card_id, amount)
 
     return get_wishlist(conn)
+
+
+# This will return the ids of library cards
+# Posting allows you to add/remove a card from the library
+@app.route("/library_id", methods=["GET", "POST"])
+def library():
+    # GET - Send the wishlist
+    if request.method == 'GET':
+        return get_library(conn)
+
+    # POST - Add/Remove cards from the wishlist
+    card_id = request.form["card_id"]
+    amount = int(request.form["amount"])
+    add_to_library(conn, card_id, amount)
+
+    return get_library(conn)
 
 
 # Get the name of a set with its id

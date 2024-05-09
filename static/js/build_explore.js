@@ -1,14 +1,14 @@
 async function main() {
 
     // Set up environment
-    body = document.getElementById("sets")
+    let body = document.getElementById("sets")
 
     // Get the sets
     let response = await fetch("/all_sets")
     let set_data = await response.json();
 
     // When we first see a series we want to create a section for it
-    found_series = new Set()
+    let found_series = new Set()
 
     // Loop through all sets and create an icon for it
     Object.entries(set_data).forEach((entry) => {
