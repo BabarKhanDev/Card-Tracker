@@ -23,7 +23,9 @@ docker compose up -d --build
 ```
 
 # TODO
-1. Use a proper database instead of a python list
-2. Add the ability to resolve false positive matches
-3. Add the ability to resolve false negative matches
-4. Add the ability to scan an nxm binder page in, it should automatically split the binder image into n*m separate images
+- [x] Allow users to view cards
+- [ ] Allow users to wishlist cards
+- [ ] Allow users to scan their cards in
+  The code for this exists, I need to hook it into the front end
+- [ ] Allow users to resolve false negative/positive matches
+- [ ] Allow users to scan a binder of cards in
