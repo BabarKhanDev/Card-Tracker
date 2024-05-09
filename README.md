@@ -24,7 +24,7 @@ docker compose up -d --build
 
 # TODO
 - [x] Allow users to view cards
-- [ ] Allow users to wishlist cards
+- [x] Allow users to wishlist cards
 - [ ] Allow users to scan their cards in
   The code for this exists, I need to hook it into the front end
 - [ ] Allow users to resolve false negative/positive matches
