@@ -1,7 +1,6 @@
 import psycopg2
 from pokemontcgsdk import Set
 from pokemontcgsdk import Card
-from flask import Response
 
 
 def connect(config):
@@ -29,33 +28,39 @@ def cache_set(conn, s: Set) -> None:
 
 
 def get_cards(conn, set_id: str):
-    try:
-        with conn.cursor() as cur:
-            # Check if we have cached the cards already
-            cur.execute("select * from sdk_cache.card where set_id = %s", (set_id,))
-            cached_cards = cur.fetchall()
-            if len(cached_cards) > 0:
-                return [{"id": c[0], "image_url_large": c[1], "image_url_small": c[2], "name": c[3], "set_id": c[4]} for c in cached_cards]
+    with conn.cursor() as cur:
+        # Check if we have cached the cards already
+        cur.execute("select * from sdk_cache.card where set_id = %s", (set_id,))
+        cached_cards = cur.fetchall()
+        if len(cached_cards) > 0:
+            return [{
+                "id": c[0],
+                "image_url_large": c[1],
+                "image_url_small": c[2],
+                "name": c[3],
+                "set_id": c[4]
+            } for c in cached_cards]
 
-            # We have not cached the cards yet, cache them and return
-            cards = Card.where(q=f'set.id:{set_id}')
-            for card in cards:
-                cur.execute("INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
-                            (card.id, card.images.large, card.images.small, card.name, set_id))
-            conn.commit()
-            return [{"id": c.id, "image_uri_large": c.images.large, "image_uri_small": c.images.small, "name": c.name, "set_id": set_id} for c in cards]
-    except Exception as e:
-        return Response(str(e), status=404, mimetype='application/json')
+        # We have not cached the cards yet, cache them and return
+        cards = Card.where(q=f'set.id:{set_id}')
+        for card in cards:
+            cur.execute("INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
+                        (card.id, card.images.large, card.images.small, card.name, set_id))
+        conn.commit()
+        return [{
+            "id": c.id,
+            "image_uri_large": c.images.large,
+            "image_uri_small": c.images.small,
+            "name": c.name,
+            "set_id": set_id
+        } for c in cards]
 
 
 def get_card_from_id(conn, card_id: str):
-    try:
-        with conn.cursor() as cur:
-            cur.execute("select * from sdk_cache.card where id = %s", (card_id,))
-            d = cur.fetchone()
-            return {"id": d[0], "image_url_large": d[1], "image_url_small": d[2], "name": d[3], "set_id": d[4]}
-    except Exception as e:
-        return Response(str(e), status=404, mimetype='application/json')
+    with conn.cursor() as cur:
+        cur.execute("select * from sdk_cache.card where id = %s", (card_id,))
+        d = cur.fetchone()
+        return {"id": d[0], "image_url_large": d[1], "image_url_small": d[2], "name": d[3], "set_id": d[4]}
 
 
 def get_sets(conn):
