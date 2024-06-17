@@ -21,10 +21,12 @@ services:
     ports:
       - "8081:80"
 
-  flask:
-    build: .
+  frontend:
+    build: ./frontend
     ports:
       - "8080:8080"
+    volumes:
+      - ./config.ini:/config.ini
 
 volumes:
   dbvolume:

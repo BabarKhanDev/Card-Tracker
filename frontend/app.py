@@ -1,4 +1,6 @@
 # These will handle the requests from the web ui
+import os
+
 from flask import Flask, request, render_template, redirect, Response
 from flask_cors import CORS
 from PIL import Image
@@ -27,7 +29,7 @@ CORS(app)
 #################
 
 # Return a list containing details for every set
-# When we start the app we cache all sets in the database
+# When we start the frontend we cache all sets in the database
 # Each set contains:
 #   id           - str,
 #   image_url    - str, logo of the set
