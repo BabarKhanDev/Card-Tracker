@@ -2,3 +2,7 @@ user_library/
 tcg_cache/
 notebooks/
 config.ini
+
+.idea/
+venv/
+*.pyc
