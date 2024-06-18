@@ -1,14 +1,13 @@
 # These will handle the requests from the web ui
-import os
 
 from flask import Flask, request, render_template, redirect, Response
 from flask_cors import CORS
 from PIL import Image
 
 from scripts.cards import cache_all_sets
-from scripts.config import load_tcg_api_key, load_database_config
-from scripts.database import (connect, get_cards, get_sets, get_wishlist, add_to_wishlist, get_library, add_to_library,
-                              get_card_from_id)
+from common.config import load_tcg_api_key, load_database_config
+from common.database import (connect, get_cards, get_sets, get_wishlist, add_to_wishlist, get_library, add_to_library,
+                             get_card_from_id)
 from scripts.responses import WishlistResponse, AllSetsResponse, AllCardsResponse, CardDetailsResponse, LibraryResponse
 
 # Connect to database

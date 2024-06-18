@@ -2,6 +2,4 @@ Flask~=3.0.0
 Flask-Cors==4.0.0
 Pillow~=10.1.0
 numpy~=1.26.2
-tqdm~=4.66.1
-requests~=2.31.0
 pokemontcgsdk~=3.4.0

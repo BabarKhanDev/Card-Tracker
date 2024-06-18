@@ -1,5 +1,5 @@
-from scripts.config import load_database_config
-from scripts.database import connect
+from common.config import load_database_config
+from common.database import connect
 
 # Set up database
 config = load_database_config("../config.ini")
@@ -16,6 +16,8 @@ for command in sql_commands:
         cursor.execute(command)
     except Exception as e:
         print("Error executing command:", e)
+
+# TODO create feature vectors for each card and store them in our database
 
 conn.commit()
 cursor.close()
