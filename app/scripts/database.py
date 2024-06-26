@@ -8,13 +8,12 @@ from PIL import Image
 
 
 def connect(config):
-    """ Connect to the PostgreSQL database server """
+    # connecting to the PostgreSQL server
     try:
-        # connecting to the PostgreSQL server
-        with psycopg2.connect(**config) as conn:
+        with psycopg.connect(**config) as conn:
             print('Connected to the PostgreSQL server.')
             return conn
-    except (psycopg2.DatabaseError, Exception) as error:
+    except (psycopg, Exception) as error:
         print(error)
 
 
@@ -50,7 +49,6 @@ def cache_set(conn, cur, s: Set, model, preprocess, device) -> None:
         except Exception as e:
             with open("setup.log", "a") as file:
                 file.write(f"Failed to download: {card.id}\n")
-                file.write(f"{e}\n")
 
             cur.execute(
                 "INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
@@ -59,115 +57,151 @@ def cache_set(conn, cur, s: Set, model, preprocess, device) -> None:
     conn.commit()
 
 
-def get_cards(conn, set_id: str):
-    with conn.cursor() as cur:
-        # Check if we have cached the cards already
-        cur.execute("select * from sdk_cache.card where set_id = %s", (set_id,))
-        cached_cards = cur.fetchall()
-        if len(cached_cards) > 0:
+# Get all sets
+def get_sets(config):
+    with psycopg.connect(**config) as conn:
+        with conn.cursor() as cur:
+
+            cur.execute("select id, image_uri, name, series, release_date from sdk_cache.set")
+            all_sets = cur.fetchall()
+
+            return [{
+                "id": set_id,
+                "image_url": image_uri,
+                "name": name,
+                "series": series,
+                "release_date": release_date
+            } for set_id, image_uri, name, series, release_date in all_sets]
+
+
+# Get the details of a specific set
+def get_set_details(config, set_id):
+    with psycopg.connect(**config) as conn:
+        with conn.cursor() as cur:
+
+            cur.execute("""
+                select id, image_uri, name, series, release_date 
+                from sdk_cache.set
+                where id = %s
+            """, (set_id,))
+
+            response = cur.fetchone()
+            if response is None:
+                return None
+
+            set_id, image_uri, name, series, release_date = response
+
+            return {
+                "id": set_id,
+                "image_url": image_uri,
+                "name": name,
+                "series": series,
+                "release_date": release_date
+            }
+
+
+# Get all cards in a set
+def get_cards(config, set_id: str):
+    with psycopg.connect(**config) as conn:
+        with conn.cursor() as cur:
+            cur.execute("select * from sdk_cache.card where set_id = %s", (set_id,))
+            cards = cur.fetchall()
             return [{
                 "id": c[0],
                 "image_url_large": c[1],
                 "image_url_small": c[2],
                 "name": c[3],
                 "set_id": c[4]
-            } for c in cached_cards]
-
-        # We have not cached the cards yet, cache them and return
-        cards = Card.where(q=f'set.id:{set_id}')
-        for card in cards:
-            cur.execute("INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
-                        (card.id, card.images.large, card.images.small, card.name, set_id))
-        conn.commit()
-        return [{
-            "id": c.id,
-            "image_uri_large": c.images.large,
-            "image_uri_small": c.images.small,
-            "name": c.name,
-            "set_id": set_id
-        } for c in cards]
+            } for c in cards]
 
 
-def get_card_from_id(conn, card_id: str):
-    with conn.cursor() as cur:
-        cur.execute("select * from sdk_cache.card where id = %s", (card_id,))
-        d = cur.fetchone()
-        return {"id": d[0], "image_url_large": d[1], "image_url_small": d[2], "name": d[3], "set_id": d[4]}
-
-
-def get_sets(conn):
-    with conn.cursor() as cur:
-        cur.execute("select id, image_uri, name, series, release_date from sdk_cache.set")
-        all_sets = cur.fetchall()
-        return [{
-            "id": s[0],
-            "image_url": s[1],
-            "name": s[2],
-            "series": s[3],
-            "release_date": s[4]
-        } for s in all_sets]
-
-
-def get_wishlist(conn):
-    with conn.cursor() as cur:
-        cur.execute("select * from user_data.wishlist")
-        wishlist_cards = cur.fetchall()
-        return {card[0]: card[1] for card in wishlist_cards}
-
-
-def remove_from_wishlist(conn, card_id: str, quantity: int = 1):
-    return add_to_wishlist(conn, card_id, quantity * -1)
-
-
-def add_to_wishlist(conn, card_id: str, quantity: int = None):
-
-    if not in_wishlist(conn, card_id):
+# Get the details of a card from its id
+def get_card_from_id(config, card_id: str):
+    with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
-            cur.execute("insert into user_data.wishlist values (%s, 0) ", (card_id, ))
+
+            cur.execute("""
+                select id, set_id, image_uri_large, image_uri_small, name 
+                from sdk_cache.card 
+                where id = %s
+            """, (card_id,))
+
+            response = cur.fetchone()
+            if response is None:
+                return None
+
+            card_id, set_id, image_uri_large, image_uri_small, name = response
+
+            return {
+                "id": card_id,
+                "image_url_large": set_id,
+                "image_url_small": image_uri_large,
+                "name": image_uri_small,
+                "set_id": name
+            }
+
+
+def get_wishlist(config):
+    # Returns a map from card_id to wishlist quantity for all cards that are wish-listed
+    with psycopg.connect(**config) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                select id, wishlist_quantity
+                from sdk_cache.card 
+                where wishlist_quantity > 0
+            """)
+
+            return {card_id: quantity for (card_id, quantity) in cur.fetchall()}
+
+
+def remove_from_wishlist(config, card_id: str, quantity: int = 1):
+    return add_to_wishlist(config, card_id, quantity * -1)
+
+
+def add_to_wishlist(config, card_id: str, quantity: int):
+    with psycopg.connect(**config) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                update sdk_cache.card
+                set wishlist_quantity = greatest(0, wishlist_quantity + %s) 
+                where id = %s;
+            """, (quantity, card_id,))
             conn.commit()
 
-    if quantity is None:
+
+def in_wishlist(config, card_id: str):
+    wishlist = get_wishlist(config)
+    return card_id in wishlist.keys()
+
+
+def get_library(config):
+    with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
-            cur.execute("delete from user_data.wishlist where card_id = %s", (card_id,))
-            conn.commit()
-        return
+            cur.execute("""
+                SELECT
+                    match.card_id AS card_id,
+                    card.image_uri_small AS image_url,
+                    upload.image_path AS upload_path
+                FROM user_data.match
+                JOIN sdk_cache.card ON match.card_id = card.id
+                JOIN user_data.upload ON match.upload_id = upload.id
+            """)
 
-    with conn.cursor() as cur:
-        cur.execute("UPDATE user_data.wishlist SET quantity = quantity + %s WHERE card_id = %s", (quantity, card_id,))
-        cur.execute("delete from user_data.wishlist where quantity <= 0")
-        conn.commit()
-
-
-def in_wishlist(conn, card_id: str):
-    wishlist = get_wishlist(conn)
-    return card_id in wishlist
-
-
-def get_library(conn):
-    with conn.cursor() as cur:
-        cur.execute("select * from user_data.library")
-        library_cards = cur.fetchall()
-        return {card[0]: card[1] for card in library_cards}
+            return [{
+                "card_id": card_id,
+                "image_url": image_url,
+                "upload_path": upload_path
+            } for card_id, image_url, upload_path in cur.fetchall()]
 
 
-def add_to_library(conn, card_id: str, quantity: int = None):
-    if not in_library(conn, card_id):
-        with conn.cursor() as cur:
-            cur.execute("insert into user_data.library values (%s, 0) ", (card_id, ))
-            conn.commit()
-
-    if quantity is None:
-        with conn.cursor() as cur:
-            cur.execute("delete from user_data.library where card_id = %s", (card_id,))
-            conn.commit()
-        return
-
-    with conn.cursor() as cur:
-        cur.execute("UPDATE user_data.library SET quantity = quantity + %s WHERE card_id = %s", (quantity, card_id,))
-        cur.execute("delete from user_data.library where quantity <= 0")
-        conn.commit()
+def add_upload(config, image_path) -> str:
+    pass
 
 
-def in_library(conn, card_id: str):
-    library = get_library(conn)
-    return card_id in library
+def add_match(config, upload_id, card_id):
+    pass
+
+
+def in_library(config, card_id: str):
+    library = get_library()
+    return card_id in {card["card_id"] for card in library}

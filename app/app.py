@@ -1,19 +1,15 @@
-# These will handle the requests from the web ui
 from flask import Flask, request, render_template, redirect, Response
 from flask_cors import CORS
 from PIL import Image
 
-from scripts.cards import cache_all_sets
 from scripts.config import load_tcg_api_key, load_database_config
-from scripts.database import (connect, get_cards, get_sets, get_wishlist, add_to_wishlist, get_library, add_to_library,
-                              get_card_from_id)
+from scripts.database import (get_cards, get_sets, get_wishlist, add_to_wishlist, get_library,
+                              get_card_from_id, get_set_details)
+from setup import setup_database
 from scripts.responses import WishlistResponse, AllSetsResponse, AllCardsResponse, CardDetailsResponse, LibraryResponse
 
-# Connect to database
+# App Configuration
 config = load_database_config("config.ini")
-conn = connect(config)
-
-# Cache all sets
 tcg_api_key = load_tcg_api_key("config.ini")
 
 # Set up flask
@@ -39,7 +35,7 @@ setup_database()
 #   release_date - str, day, dd Mmm YYYY 00:00:00 GMT # TODO maybe I should trim the time
 @app.get("/all_sets")
 def get_all_sets():
-    return AllSetsResponse(get_sets(conn))
+    return AllSetsResponse(get_sets(config))
 
 
 # Return a list of details for each card in a given set
@@ -50,26 +46,20 @@ def get_all_sets():
 #   image_url_small - str, low-res image of card
 #   name            - str, display name of card
 #   set_id          - str, the set that owns this card
-# TODO, a set might get new cards added to it at a later date, we should add an expiry to these entries
 @app.get("/set/<set_id>")
 def get_set(set_id):
-    try:
-        return AllCardsResponse(get_cards(conn, set_id))
-    except Exception as e:
-        return Response(str(e), status=404, mimetype='application/json')
+    return AllCardsResponse(get_cards(config, set_id))
 
 
 # Return a dictionary with the details of our card
 # These are the same as described above
-# Note: we only look in our cached cards here, if it's not in the cache we return a 404,
-#   even if the card might exist
-# TODO, look at checking uncached cards, especially if we add an expiry to cached cards
 @app.get("/card/<card_id>")
 def get_card(card_id):
-    try:
-        return CardDetailsResponse(get_card_from_id(conn, card_id))
-    except Exception as e:
-        return Response(str(e), status=404, mimetype='application/json')
+    details = get_card_from_id(config, card_id)
+    if details is not None:
+        return CardDetailsResponse(details)
+
+    return Response("Card not found", status=404, mimetype='application/json')
 
 
 # Return a dictionary of card_id : quantity wishlisted
@@ -81,60 +71,49 @@ def get_card(card_id):
 def wishlist():
     # GET - Send the wishlist
     if request.method == 'GET':
-        return WishlistResponse(get_wishlist(conn))
+        return WishlistResponse(get_wishlist(config))
 
     # POST - Add/Remove cards from the wishlist
     card_id = request.form["card_id"]
     amount = int(request.form["amount"])
-    add_to_wishlist(conn, card_id, amount)
+    add_to_wishlist(config, card_id, amount)
 
-    return WishlistResponse(get_wishlist(conn))
+    return WishlistResponse(get_wishlist(config))
 
 
-# Return a dictionary of card_id : quantity in library
-# Basically identical to wishlisting
-# POST request allows you to adjust the quantity of library cards by a quantity
-# POST parameters:
-#   card_id - str, the card to adjust
-#   amount  - int, the amount the adjust quantity by
-@app.route("/library_id", methods=["GET", "POST"])
+# Return a list of library objects
+# Each library object looks like:
+#   card_id: string
+#   image_url: string <- sdk image
+#   upload_path: string <- user image
+@app.route("/library_id")
 def library():
-    # GET - Send the wishlist
-    if request.method == 'GET':
-        return LibraryResponse(get_library(conn))
-
-    # POST - Add/Remove cards from the wishlist
-    card_id = request.form["card_id"]
-    amount = int(request.form["amount"])
-    add_to_library(conn, card_id, amount)
-
-    return LibraryResponse(get_library(conn))
+    return LibraryResponse(get_library(config))
 
 
-# Return the display name of a set
-# TODO maybe we want an endpoint to get all details of a card/set from it's id?
-@app.get("/set_id_to_name/<set_id>")
-def set_id_to_name(set_id):
-    try:
-        with conn.cursor() as cur:
-            cur.execute("select name from sdk_cache.set where id = %s", (set_id,))
-            return str(cur.fetchone()[0])
-    except Exception as e:
-        return Response(f"Set not found: {e}", status=404, mimetype='application/json')
+# Return the details of a set
+@app.get("/set_details/<set_id>")
+def set_details(set_id):
+    details = get_set_details(config, set_id)
+    if details is not None:
+        return details
+
+    return Response("Set not found", status=404, mimetype='application/json')
+
 
 
 # TODO improve this, will do when re-implementing card uploading
 @app.route("/upload_cards", methods=['POST'])
 def upload_cards():
-    try:
-        files = request.files.getlist("file")
-        for file in files:
-            image = Image.open(file)
-            image.save(f"upload_test/{file.filename[:-4]}.png", "PNG")
+    if 'file' not in request.files:
+        return Response({"error": "No image file in request"}, status=400)
 
-        return "Success"
-    except:
-        return "Upload Failed"
+    files = request.files.getlist("file")
+    for file in files:
+        image = Image.open(file)
+        image.save(f"upload_test/{file.filename[:-4]}.png", "PNG")
+
+    return "Success"
 
 
 #################
