@@ -5,7 +5,7 @@ from PIL import Image
 from scripts.config import load_tcg_api_key, load_database_config
 from scripts.database import (get_cards, get_sets, get_wishlist, add_to_wishlist, get_library,
                               get_card_from_id, get_set_details)
-from setup import setup_database
+from scripts.setup import setup_database
 from scripts.responses import WishlistResponse, AllSetsResponse, AllCardsResponse, CardDetailsResponse, LibraryResponse
 
 # App Configuration

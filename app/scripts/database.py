@@ -3,6 +3,7 @@ from pokemontcgsdk import Set
 from pokemontcgsdk import Card
 
 import requests
+import numpy as np
 from io import BytesIO
 from PIL import Image
 
@@ -18,21 +19,31 @@ def connect(config):
 
 
 # Cache a set and all of its cards
-def cache_set(conn, cur, s: Set, model, preprocess, device) -> None:
+def cache_set(cur, s: Set, model, preprocess, device, serialised_data) -> None:
+
     # If the set is already cached then skip
     cur.execute("select count(*) from sdk_cache.set where id = %s", (s.id,))
     if cur.fetchone()[0] > 0:
         return
 
-    # Cache the set details in the DB
+    # Add the set details to the DB
     cur.execute("INSERT INTO sdk_cache.set (id, image_uri, name, series, release_date) VALUES (%s, %s, %s, %s, %s)",
                 (s.id, s.images.logo, s.name, s.series, s.releaseDate))
 
     cards = Card.where(q=f'set.id:{s.id}')
     for card in cards:
 
+        # First try serialised data
+        if serialised_data is not None and card.id in serialised_data:
+            features = np.array(serialised_data[card.id]).astype(np.float32)
+            cur.execute(
+                "INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id, features) VALUES (%s, %s, %s, %s, %s, %s)",
+                (card.id, card.images.large, card.images.small, card.name, s.id, features,))
+            continue
+
+        # Otherwise try generating data
         try:
-            # Calculate Features
+            # We do not have features yet, calculate them
             response = requests.get(card.images.large)
             if response.status_code != 200:
                 raise Exception("Failed to download image")
@@ -47,14 +58,14 @@ def cache_set(conn, cur, s: Set, model, preprocess, device) -> None:
                 (card.id, card.images.large, card.images.small, card.name, s.id, features,))
 
         except Exception as e:
-            with open("setup.log", "a") as file:
+            # Sometimes we cannot download the file, this will allow us to upload an entry without the details
+            # we will try again later
+            with open("../../setup.log", "a") as file:
                 file.write(f"Failed to download: {card.id}\n")
 
             cur.execute(
                 "INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
                 (card.id, card.images.large, card.images.small, card.name, s.id,))
-
-    conn.commit()
 
 
 # Get all sets
