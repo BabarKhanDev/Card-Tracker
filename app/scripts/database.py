@@ -1,6 +1,10 @@
-import psycopg2
+import psycopg
 from pokemontcgsdk import Set
 from pokemontcgsdk import Card
+
+import requests
+from io import BytesIO
+from PIL import Image
 
 
 def connect(config):
@@ -14,17 +18,45 @@ def connect(config):
         print(error)
 
 
-def cache_set(conn, s: Set) -> None:
-    with conn.cursor() as cur:
+# Cache a set and all of its cards
+def cache_set(conn, cur, s: Set, model, preprocess, device) -> None:
+    # If the set is already cached then skip
+    cur.execute("select count(*) from sdk_cache.set where id = %s", (s.id,))
+    if cur.fetchone()[0] > 0:
+        return
 
-        cur.execute("select count(*) from sdk_cache.set where id = %s", (s.id,))
-        if cur.fetchone()[0] > 0:
-            return
+    # Cache the set details in the DB
+    cur.execute("INSERT INTO sdk_cache.set (id, image_uri, name, series, release_date) VALUES (%s, %s, %s, %s, %s)",
+                (s.id, s.images.logo, s.name, s.series, s.releaseDate))
 
-        cur.execute("INSERT INTO sdk_cache.set (id, image_uri, name, series, release_date) VALUES (%s, %s, %s, %s, %s)",
-                    (s.id, s.images.logo, s.name, s.series, s.releaseDate))
-        conn.commit()
-    return
+    cards = Card.where(q=f'set.id:{s.id}')
+    for card in cards:
+
+        try:
+            # Calculate Features
+            response = requests.get(card.images.large)
+            if response.status_code != 200:
+                raise Exception("Failed to download image")
+
+            image = Image.open(BytesIO(response.content)).convert('RGB')
+            batch = preprocess(image).unsqueeze(0).to(device)
+            features = model(batch).squeeze(0).cpu().detach().numpy()
+
+            # Cache the card details in the DB
+            cur.execute(
+                "INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id, features) VALUES (%s, %s, %s, %s, %s, %s)",
+                (card.id, card.images.large, card.images.small, card.name, s.id, features,))
+
+        except Exception as e:
+            with open("setup.log", "a") as file:
+                file.write(f"Failed to download: {card.id}\n")
+                file.write(f"{e}\n")
+
+            cur.execute(
+                "INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
+                (card.id, card.images.large, card.images.small, card.name, s.id,))
+
+    conn.commit()
 
 
 def get_cards(conn, set_id: str):

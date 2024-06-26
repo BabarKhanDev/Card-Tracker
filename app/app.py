@@ -15,11 +15,14 @@ conn = connect(config)
 
 # Cache all sets
 tcg_api_key = load_tcg_api_key("config.ini")
-cache_all_sets(tcg_api_key, conn)
 
 # Set up flask
 app = Flask(__name__)
 CORS(app)
+
+# Cache Cards
+print("Checking if card features created. \n Note: if running for the first time this may take a while.")
+setup_database()
 
 
 #################
