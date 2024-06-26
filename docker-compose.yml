@@ -2,7 +2,8 @@ version: "3"
 
 services:
   db:
-    image: postgres:16.2
+    hostname: db
+    image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: cards
       POSTGRES_DATABASE: cards
@@ -21,10 +22,12 @@ services:
     ports:
       - "8081:80"
 
-  flask:
-    build: .
+  frontend:
+    build: ./app
     ports:
       - "8080:8080"
+    volumes:
+      - ./config.ini:/config.ini
 
 volumes:
   dbvolume:

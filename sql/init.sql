@@ -1,3 +1,6 @@
+-- EXTENSIONS
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- SCHEMA: sdk_cache
 
 CREATE SCHEMA IF NOT EXISTS sdk_cache
@@ -25,10 +28,12 @@ ALTER TABLE sdk_cache.set
 CREATE TABLE IF NOT EXISTS sdk_cache.card
 (
     id text COLLATE pg_catalog."default" NOT NULL,
+    set_id text COLLATE pg_catalog."default",
     image_uri_large text COLLATE pg_catalog."default",
     image_uri_small text COLLATE pg_catalog."default",
     name text COLLATE pg_catalog."default",
-    set_id text COLLATE pg_catalog."default",
+    wishlist_quantity integer DEFAULT 0,
+    features vector(4096),
     CONSTRAINT card_pkey PRIMARY KEY (id),
     CONSTRAINT set_id FOREIGN KEY (set_id)
         REFERENCES sdk_cache.set (id) MATCH SIMPLE
@@ -46,38 +51,39 @@ ALTER TABLE sdk_cache.card
 CREATE SCHEMA IF NOT EXISTS user_data
     AUTHORIZATION cards;
 
--- Table: user_data.library
+-- Table: user_data.upload
 
-CREATE TABLE IF NOT EXISTS user_data.library
+CREATE TABLE IF NOT EXISTS user_data.upload
 (
-    card_id text COLLATE pg_catalog."default" NOT NULL,
-    quantity integer,
-    CONSTRAINT library_pkey PRIMARY KEY (card_id),
-    CONSTRAINT card_id FOREIGN KEY (card_id)
-        REFERENCES sdk_cache.card (id) MATCH SIMPLE
-        ON UPDATE NO ACTION
-        ON DELETE NO ACTION
+    id text COLLATE pg_catalog."default" NOT NULL,
+    image_path text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT upload_pkey PRIMARY KEY (id)
 )
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS user_data.library
+ALTER TABLE IF EXISTS user_data.upload
     OWNER to cards;
 
--- Table: user_data.wishlist
+-- Table: user_data.match
 
-CREATE TABLE IF NOT EXISTS user_data.wishlist
+CREATE TABLE IF NOT EXISTS user_data.match
 (
+    id text COLLATE pg_catalog."default" NOT NULL,
     card_id text COLLATE pg_catalog."default" NOT NULL,
-    quantity integer,
-    CONSTRAINT wishlist_pkey PRIMARY KEY (card_id),
+    upload_id text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT match_pkey PRIMARY KEY (id),
     CONSTRAINT card_id FOREIGN KEY (card_id)
         REFERENCES sdk_cache.card (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT upload_id FOREIGN KEY (upload_id)
+        REFERENCES user_data.upload (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 )
 
 TABLESPACE pg_default;
 
-ALTER TABLE IF EXISTS user_data.wishlist
+ALTER TABLE IF EXISTS user_data.match
     OWNER to cards;

@@ -4,6 +4,6 @@ API_key=
 
 [postgresql]
 host=localhost
-database=cards
+dbname=cards
 user=cards
 password=heresapassword
