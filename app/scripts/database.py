@@ -145,10 +145,10 @@ def get_card_from_id(config, card_id: str):
 
             return {
                 "id": card_id,
-                "image_url_large": set_id,
-                "image_url_small": image_uri_large,
-                "name": image_uri_small,
-                "set_id": name
+                "image_url_large": image_uri_large,
+                "image_url_small": image_uri_small,
+                "name": name,
+                "set_id": set_id
             }
 
 
