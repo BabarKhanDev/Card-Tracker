@@ -10,8 +10,8 @@ async function main() {
 
     // Get the set of each card from /card/card_id
     let wishlist_sets = new Set()
-    for (const [card, _] of Object.entries(wishlist_ids)) {
-        let response = await fetch(`/card/${card}`)
+    for (const [card_id, _] of Object.entries(wishlist_ids)) {
+        let response = await fetch(`/card/${card_id}`)
         let card_details = await response.json()
         wishlist_cards.push(card_details)
         wishlist_sets.add(card_details.set_id)
