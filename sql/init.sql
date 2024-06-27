@@ -55,7 +55,7 @@ CREATE SCHEMA IF NOT EXISTS user_data
 
 CREATE TABLE IF NOT EXISTS user_data.upload
 (
-    id text COLLATE pg_catalog."default" NOT NULL,
+    id SERIAL,
     image_path text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT upload_pkey PRIMARY KEY (id)
 )
@@ -69,7 +69,7 @@ ALTER TABLE IF EXISTS user_data.upload
 
 CREATE TABLE IF NOT EXISTS user_data.match
 (
-    id text COLLATE pg_catalog."default" NOT NULL,
+    id SERIAL,
     card_id text COLLATE pg_catalog."default" NOT NULL,
     upload_id text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT match_pkey PRIMARY KEY (id),
