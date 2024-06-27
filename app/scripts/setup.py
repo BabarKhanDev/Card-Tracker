@@ -26,20 +26,6 @@ def setup_database():
             cur.execute('CREATE EXTENSION IF NOT EXISTS vector')
             print("Successfully registered vector extension")
 
-            # Database initialisation
-            with open("../sql/init.sql", "r") as file:
-                sql_commands = file.read()
-
-            sql_commands = sql_commands.split(";")
-            for command in sql_commands:
-                if command == "":
-                    continue
-                try:
-                    cur.execute(command)
-                except Exception as e:
-                    print("Error executing command:", e)
-            print("Successfully Configured Database")
-
             # Cache all cards
             serialised_features = None
             if os.path.isfile("../serialised_features.json"):
@@ -59,4 +45,5 @@ def setup_database():
 
 
 if "__main__" == __name__:
+    # TODO maybe we should have a separate microservice that does this rather than manually running it?
     setup_database()

@@ -1,10 +1,10 @@
-FROM python:3.11
+FROM python:3.12
 
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && apt-get -y install libpq-dev gcc \
-    && pip install psycopg2
+    && pip install psycopg
 
-COPY requirements.txt /tmp
+COPY ./requirements.txt /tmp
 RUN pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
 RUN rm /tmp/requirements.txt
 COPY . .

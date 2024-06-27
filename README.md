@@ -22,6 +22,17 @@ cp config.ini.example config.ini
 docker compose up -d --build
 ```
 
+Create the features for each of our cards
+```bash
+python3 -m venv venv
+. venv/bin/activate (linux) or ./venv/Scripts/activate (win)
+python3 -m pip install -e
+pip install -r requirements.txt
+cd app/scripts
+python3 setup.py
+```
+
+
 # TODO
 - [x] Allow users to view cards
 - [x] Allow users to wishlist cards

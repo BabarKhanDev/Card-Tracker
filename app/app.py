@@ -16,10 +16,6 @@ tcg_api_key = load_tcg_api_key("config.ini")
 app = Flask(__name__)
 CORS(app)
 
-# Cache Cards
-print("Checking if card features created. \n Note: if running for the first time this may take a while.")
-setup_database()
-
 
 #################
 # JSON DELIVERY #
@@ -101,7 +97,6 @@ def set_details(set_id):
     return Response("Set not found", status=404, mimetype='application/json')
 
 
-
 # TODO improve this, will do when re-implementing card uploading
 @app.route("/upload_cards", methods=['POST'])
 def upload_cards():
@@ -128,7 +123,7 @@ def default():
 # This will allow you to explore a given set
 @app.get("/explore/<set_id>")
 def explore_set(set_id):
-    set_name = set_id_to_name(set_id)
+    set_name = get_set_details(config, set_id)["id"]
     return render_template('set.html', set_name=set_name)
 
 
