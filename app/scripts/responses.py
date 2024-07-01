@@ -42,5 +42,5 @@ class CardDetailsResponse(CardDetails):
     pass
 
 
-class LibraryResponse(dict[CardId, Quantity]):
+class LibraryResponse(list[dict]):
     pass

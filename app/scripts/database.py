@@ -185,7 +185,19 @@ def in_wishlist(config, card_id: str):
     return card_id in wishlist.keys()
 
 
-def get_library(config):
+def get_library(config, user_card_dir: str = "static/user_cards/"):
+    with psycopg.connect(**config) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT
+                    upload.image_path AS upload_path
+                FROM user_data.upload
+            """)
+
+            return [f"{user_card_dir}{upload[0]}" for upload in cur.fetchall()]
+
+
+def get_matches(config, upload_path: str):
     with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -196,7 +208,8 @@ def get_library(config):
                 FROM user_data.match
                 JOIN sdk_cache.card ON match.card_id = card.id
                 JOIN user_data.upload ON match.upload_id = upload.id
-            """)
+                WHERE image_path = %s
+            """, (upload_path, ))
 
             return [{
                 "card_id": card_id,

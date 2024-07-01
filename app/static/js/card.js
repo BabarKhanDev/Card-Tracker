@@ -28,16 +28,25 @@ async function generate_card(
         let wishlist_container = create_wishlist_container(id, delete_if_wishlist_zero, wishlist_count)
         card_element.append(wishlist_container)
     }
-    if (show_library) {
-        let response = await fetch("/library_id")
-        let library = await response.json()
-        let library_count = library[id] || 0
-
-        let library_container = create_library_container(id, delete_if_library_zero, library_count)
-        card_element.append(library_container)
-    }
+    // TODO sort this out
+    // if (show_library) {
+    //     let response = await fetch("/library_id")
+    //     let library = await response.json()
+    //     let library_count = library[id] || 0
+    //
+    //     let library_container = create_library_container(id, delete_if_library_zero, library_count)
+    //     card_element.append(library_container)
+    // }
 
     return card_element
+}
+
+async function generate_uploaded_card(image_path) {
+    let img_element = document.createElement("img")
+    img_element.setAttribute("alt", "Uploaded card")
+    img_element.setAttribute("class", "img_library card_image")
+    img_element.setAttribute("src", image_path)
+    return img_element
 }
 
 async function update_wishlist(id, amount, delete_if_wishlist_zero) {
@@ -68,30 +77,30 @@ async function update_wishlist(id, amount, delete_if_wishlist_zero) {
 
 }
 
-async function update_library(id, amount, delete_if_library_zero) {
-    let formData = new FormData();
-    formData.append('card_id', id);
-    formData.append('amount', amount);
-
-    let response = await fetch("/library_id", {
-        method: 'POST',
-        body: formData
-    })
-    let library = await response.json()
-    let counter = document.getElementById("library_count_" + id);
-
-    // if we unwishlist then the id will not be in the wishlist dictionary
-    if (id in library) {
-        counter.innerHTML = "Library: " + String(library[id])
-    } else {
-        if (delete_if_library_zero) {
-            let card_container = document.querySelector('[library_id=' + id + ']');
-            card_container.remove()
-        } else {
-            counter.innerHTML = "In Library: 0"
-        }
-    }
-}
+// TODO sort this out
+// async function update_library(id, amount, delete_if_library_zero) {
+//     let formData = new FormData();
+//     formData.append('card_id', id);
+//     formData.append('amount', amount);
+//
+//     let response = await fetch("/library_id", {
+//         method: 'POST',
+//         body: formData
+//     })
+//     let library = await response.json()
+//     let counter = document.getElementById("library_count_" + id);
+//
+//     if (id in library) {
+//         counter.innerHTML = "Library: " + String(library[id])
+//     } else {
+//         if (delete_if_library_zero) {
+//             let card_container = document.querySelector('[library_id=' + id + ']');
+//             card_container.remove()
+//         } else {
+//             counter.innerHTML = "In Library: 0"
+//         }
+//     }
+// }
 
 
 function generate_big_card(imgsrc, alt) {

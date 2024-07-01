@@ -71,6 +71,15 @@ nav > *:not(a), nav> a > * {
     padding-right: var(--padding);
 }
 
+.img_library {
+    width: var(--width);
+    box-shadow: 5px 5px 10px 2px rgba(0,0,0,.8);
+    margin-right:2em;
+    margin-bottom:2em;
+    perspective: 40px;
+    border-radius: 1em;
+}
+
 .card{
     width: var(--width);
     box-shadow: 5px 5px 10px 2px rgba(0,0,0,.8);
@@ -90,7 +99,7 @@ nav > *:not(a), nav> a > * {
     border-bottom-right-radius: 1em;
 }
 
-.card:hover {
+.card:hover, .img_library:hover {
     -webkit-filter: brightness(70%);
     filter: brightness(70%);
     -webkit-transition: all 0.5s ease;

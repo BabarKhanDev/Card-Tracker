@@ -84,7 +84,7 @@ def wishlist():
 #   card_id: string
 #   image_url: string <- sdk image
 #   upload_path: string <- user image
-@app.route("/library_id")
+@app.route("/uploads")
 def library():
     return LibraryResponse(get_library(config))
 
