@@ -1,6 +1,11 @@
 import cv2 as cv
 import numpy as np
 from sklearn import linear_model
+from multiprocessing import Value
+
+import psycopg
+from pgvector.psycopg import register_vector
+from uuid import uuid1
 
 import torch
 from torchvision.models import vgg16, VGG16_Weights
@@ -145,20 +150,22 @@ def corners_from_edges(edges) -> np.ndarray:
     ])
 
 
-def create_homography(card_img: np.ndarray) -> np.ndarray:
+def create_homography(image: Image) -> Image:
 
     # Get corners of the card
-    edges = detect_edges(card_img)
+    np_image = np.array(image)
+    edges = detect_edges(np_image)
     pts_src = corners_from_edges(edges)
 
     # Warp corners into 300x400 image
-    H, W, _ = card_img.shape
+    H, W, _ = np_image.shape
     pts_dst = np.array([(W, H), (W, 0), (0, H), (0, 0)])
     h, _ = cv.findHomography(pts_src, pts_dst)
-    card_homography = cv.warpPerspective(card_img, h, (W, H))
+    card_homography = cv.warpPerspective(np_image, h, (W, H))
     card_homography = cv.resize(card_homography, (300, 400), card_homography, interpolation=cv.INTER_AREA)
+    image = Image.fromarray(card_homography.astype('uint8'), 'RGB')
 
-    return card_homography
+    return image
 
 
 def create_model_and_preprocess():
@@ -170,7 +177,6 @@ def create_model_and_preprocess():
     model.classifier = model.classifier[0]
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Device: {device}")
     model.to(device)
 
     # Create inference transforms
@@ -181,15 +187,49 @@ def create_model_and_preprocess():
     return model, preprocess, device
 
 
-def create_feature_vector(homography_img: np.ndarray) -> np.ndarray:
+def create_feature_vector(homography_img: Image) -> np.ndarray:
     model, preprocess, device = create_model_and_preprocess()
-
-    image = Image.fromarray(homography_img.astype('uint8'), 'RGB')
-    batch = preprocess(image).unsqueeze(0).to(device)
+    batch = preprocess(homography_img).unsqueeze(0).to(device)
     features = model(batch).to(device).squeeze(0)
     return features.cpu().detach().numpy().ravel()
 
 
-def find_closest_card(feature_vector):
-    # TODO feature_vector -> []card_id
-    pass
+def find_closest_cards(config, feature_vector: np.ndarray) -> [str]:
+    with psycopg.connect(**config) as conn:
+        register_vector(conn)
+        with conn.cursor() as cur:
+            cur.execute("SELECT id FROM sdk_cache.card ORDER BY features <+> %s LIMIT 5;", (feature_vector,))
+            response = cur.fetchall()
+
+            return [card[0] for card in response]
+
+
+def process_upload(config, image: Image, image_processing_count: Value, user_card_dir: str = "static/user_cards/") -> [str]:
+    # TODO potential improvements:
+    #   Use text within the image
+    #   Compare the features of the top half of the image -> most cards only have images in the top half
+    #   Try and get the series of the card
+
+    # Create homography and save that to disc, we can then show this to users in front-end
+    image_name = str(uuid1()) + ".png"
+    image.save(f"static/user_cards_raw/{image_name}", "PNG")
+    homography = create_homography(image)
+    homography.save(f"{user_card_dir}{image_name}", "PNG")
+
+    # Calculate features and find close matches
+    features = create_feature_vector(homography)
+    card_ids = find_closest_cards(config, features)
+
+    # Create db entries
+    with psycopg.connect(**config) as conn:
+        with conn.cursor() as cur:
+            cur.execute("insert into user_data.upload (image_path) values (%s);", (image_name,))
+            cur.execute("select id from user_data.upload where image_path = %s", (image_name,))
+            upload_id = cur.fetchone()[0]
+
+            for card_id in card_ids:
+                cur.execute("""
+                insert into user_data.match (card_id, upload_id) values (%s, %s);
+                """, (card_id, upload_id,))
+
+    image_processing_count.value -= 1
