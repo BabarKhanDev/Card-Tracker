@@ -1,16 +1,18 @@
 from flask import Flask, request, render_template, redirect, Response
 from flask_cors import CORS
-from PIL import Image
+from PIL import Image,ImageOps
+import multiprocessing as mp
 
 from scripts.config import load_tcg_api_key, load_database_config
+from scripts.vision import process_upload
+from scripts.responses import WishlistResponse, AllSetsResponse, AllCardsResponse, CardDetailsResponse, LibraryResponse
 from scripts.database import (get_cards, get_sets, get_wishlist, add_to_wishlist, get_library,
                               get_card_from_id, get_set_details)
-from scripts.setup import setup_database
-from scripts.responses import WishlistResponse, AllSetsResponse, AllCardsResponse, CardDetailsResponse, LibraryResponse
 
 # App Configuration
 config = load_database_config("config.ini")
 tcg_api_key = load_tcg_api_key("config.ini")
+image_processing_count = mp.Value("i", 0)  # store the num of cards currently processing
 
 # Set up flask
 app = Flask(__name__)
@@ -97,7 +99,6 @@ def set_details(set_id):
     return Response("Set not found", status=404, mimetype='application/json')
 
 
-# TODO improve this, will do when re-implementing card uploading
 @app.route("/upload_cards", methods=['POST'])
 def upload_cards():
     if 'file' not in request.files:
@@ -105,8 +106,13 @@ def upload_cards():
 
     files = request.files.getlist("file")
     for file in files:
+
+        image_processing_count.value += 1
         image = Image.open(file)
-        image.save(f"upload_test/{file.filename[:-4]}.png", "PNG")
+        image = ImageOps.exif_transpose(image)  # fix rotation issue
+        process = mp.Process(target=process_upload, args=(config, image, image_processing_count))
+        process.start()
+        process.join()
 
     return "Success"
 
