@@ -7,7 +7,7 @@ from scripts.config import load_tcg_api_key, load_database_config
 from scripts.vision import process_upload
 from scripts.responses import WishlistResponse, AllSetsResponse, AllCardsResponse, CardDetailsResponse, LibraryResponse
 from scripts.database import (get_cards, get_sets, get_wishlist, add_to_wishlist, get_library,
-                              get_card_from_id, get_set_details)
+                              get_card_from_id, get_set_details, get_match_counts)
 
 # App Configuration
 config = load_database_config("config.ini")
@@ -85,8 +85,14 @@ def wishlist():
 #   image_url: string <- sdk image
 #   upload_path: string <- user image
 @app.route("/uploads")
-def library():
+def uploads():
     return LibraryResponse(get_library(config))
+
+
+# Get the number of matches of a card in a users library
+@app.route("/upload_count/<card_id>")
+def upload_count(card_id):
+    return {card_id: get_match_counts(config, card_id)}
 
 
 # Return the details of a set

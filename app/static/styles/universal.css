@@ -3,7 +3,18 @@
     --height: 350px;
     --text-size: 1em;
     --padding: 5em;
+    --yellow: #f5cc01;
 }
+
+/* Google Fonts */
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24
+}
+/* Google Fonts End */
 
 input:hover{
     cursor:pointer;
@@ -87,7 +98,7 @@ nav > *:not(a), nav> a > * {
     margin-bottom:2em;
     perspective: 40px;
     border-radius: 1em;
-    background-color: #f5cc01
+    background-color: var(--yellow);
 }
 
 .card_image{
@@ -255,26 +266,16 @@ nav > *:not(a), nav> a > * {
 }
 
 .big_card_close{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    background-color: rgb(236, 38, 12);
-    font-size: calc(var(--text-size) * 2);
-    font-weight:bold;
-    text-align:center;
-
-    padding:0.2em;
-    border-radius:0.1em;
-
     position:absolute;
     left:1em;
     top:1em;
+    color: white;
 }
 
 .big_card_close:hover{
-    background-color:rgb(194, 29, 7);
+    background-color: var(--yellow);
     cursor:pointer;
+    border-radius: 1em;
 }
 
 .big_card_image{

@@ -12,14 +12,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"> 
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/universal.css') }}" />
-    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
     <script src="{{ url_for('static',filename='js/settings.js') }}"></script>
     <script src="{{ url_for('static',filename='js/build_explore.js') }}"></script>
 
     <title>Explore All Cards</title>
 </head>
 <body onload = main()>
-    
+
     <nav id = "navbar">
     
         <h1>Explore All Cards</h1>
@@ -37,7 +38,6 @@
         <input type="range" id="card_padding" name="card_padding" min="1" max="15"  onChange="update_card_padding(this.value);">
 
     </section>
-
 
     <div id = "sets"> </div>
 

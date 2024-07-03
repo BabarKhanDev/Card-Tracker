@@ -218,6 +218,18 @@ def get_matches(config, upload_path: str):
             } for card_id, image_url, upload_path in cur.fetchall()]
 
 
+def get_match_counts(config, card_id):
+    with psycopg.connect(**config) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT count(card_id)
+                FROM user_data.match
+                WHERE card_id = %s
+            """, (card_id, ))
+
+            return cur.fetchone()[0]
+
+
 def add_upload(config, image_path) -> str:
     pass
 

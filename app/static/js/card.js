@@ -28,15 +28,13 @@ async function generate_card(
         let wishlist_container = create_wishlist_container(id, delete_if_wishlist_zero, wishlist_count)
         card_element.append(wishlist_container)
     }
-    // TODO sort this out
-    // if (show_library) {
-    //     let response = await fetch("/library_id")
-    //     let library = await response.json()
-    //     let library_count = library[id] || 0
-    //
-    //     let library_container = create_library_container(id, delete_if_library_zero, library_count)
-    //     card_element.append(library_container)
-    // }
+
+    if (show_library) {
+        let response = await fetch("/upload_count/" + id)
+        let library_count = (await response.json())[id] || 0
+        let library_container = create_library_container(id, library_count)
+        card_element.append(library_container)
+    }
 
     return card_element
 }
@@ -77,32 +75,6 @@ async function update_wishlist(id, amount, delete_if_wishlist_zero) {
 
 }
 
-// TODO sort this out
-// async function update_library(id, amount, delete_if_library_zero) {
-//     let formData = new FormData();
-//     formData.append('card_id', id);
-//     formData.append('amount', amount);
-//
-//     let response = await fetch("/library_id", {
-//         method: 'POST',
-//         body: formData
-//     })
-//     let library = await response.json()
-//     let counter = document.getElementById("library_count_" + id);
-//
-//     if (id in library) {
-//         counter.innerHTML = "Library: " + String(library[id])
-//     } else {
-//         if (delete_if_library_zero) {
-//             let card_container = document.querySelector('[library_id=' + id + ']');
-//             card_container.remove()
-//         } else {
-//             counter.innerHTML = "In Library: 0"
-//         }
-//     }
-// }
-
-
 function generate_big_card(imgsrc, alt) {
 
     let big_card_container = document.createElement("div")
@@ -114,9 +86,9 @@ function generate_big_card(imgsrc, alt) {
     img_element.setAttribute("src", imgsrc)
     big_card_container.appendChild(img_element)
 
-    let close_button = document.createElement("div")
-    close_button.setAttribute("class", "big_card_close")
-    close_button.innerHTML = "X "
+    let close_button = document.createElement("span")
+    close_button.setAttribute("class", "big_card_close material-symbols-outlined")
+    close_button.innerHTML = 'close'
     close_button.onclick = () => close_big_card()
 
     big_card_container.appendChild(close_button)
@@ -163,16 +135,7 @@ function create_wishlist_container(id, delete_if_wishlist_zero, wishlist_amount)
     return wishlist_container
 }
 
-function create_library_container(id, delete_if_library_zero, library_amount) {
-    let library_add = document.createElement("div")
-    library_add.setAttribute("class", "library_add")
-    library_add.innerHTML = "+"
-    library_add.onclick = async () => update_library(id, "1")
-
-    let library_sub = document.createElement("div")
-    library_sub.setAttribute("class", "library_sub")
-    library_sub.innerHTML = "-"
-    library_sub.onclick = async () => await update_library(id, "-1", delete_if_library_zero)
+function create_library_container(id, library_amount) {
 
     let library_count = document.createElement("div")
     library_count.setAttribute("class", "library_count")
@@ -182,7 +145,7 @@ function create_library_container(id, delete_if_library_zero, library_amount) {
     let library_container = document.createElement("div")
     library_container.setAttribute("id", "wishlist_container-" + id)
     library_container.setAttribute("class", "wishlist_container")
-    library_container.append(library_sub, library_count, library_add)
+    library_container.append(library_count)
 
     return library_container
 }
