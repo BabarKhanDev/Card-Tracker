@@ -3,8 +3,8 @@ async function main() {
     let card_library = document.getElementById("cards")
     let response = await fetch("/uploads")
     let library_uploads = await response.json()
-    for (const image_path of library_uploads) {
-        let card_element = await generate_uploaded_card(image_path)
+    for (const upload of library_uploads) {
+        let card_element = await generate_uploaded_card(upload.imgsrc, upload.upload_id)
         card_library.appendChild(card_element)
     }
 }

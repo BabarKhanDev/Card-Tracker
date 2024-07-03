@@ -251,7 +251,7 @@ nav > *:not(a), nav> a > * {
 
 /* big card preview */
 
-.big_card_container{
+.big_card_container, .match_resolver_container{
     position:fixed;
     top:0;
     left:0;
@@ -282,6 +282,12 @@ nav > *:not(a), nav> a > * {
     max-height: calc(var(--height) * 3);
     max-width: calc(var(--width) * 3);
     margin-bottom:1em;
+}
+
+/* Match Resolving*/
+.matches_element {
+    display:flex;
+    flex-direction: row;
 }
 
 /* Key frames */

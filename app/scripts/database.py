@@ -190,14 +190,18 @@ def get_library(config, user_card_dir: str = "static/user_cards/"):
         with conn.cursor() as cur:
             cur.execute("""
                 SELECT
-                    upload.image_path AS upload_path
+                    upload.image_path AS upload_path,
+                    upload.id as upload_id
                 FROM user_data.upload
             """)
 
-            return [f"{user_card_dir}{upload[0]}" for upload in cur.fetchall()]
+            return [{
+                "imgsrc": f"{user_card_dir}{upload_path}",
+                "upload_id": upload_id
+            } for upload_path, upload_id in cur.fetchall()]
 
 
-def get_matches(config, upload_path: str):
+def get_matches(config, upload_id: str):
     with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -208,8 +212,8 @@ def get_matches(config, upload_path: str):
                 FROM user_data.match
                 JOIN sdk_cache.card ON match.card_id = card.id
                 JOIN user_data.upload ON match.upload_id = upload.id
-                WHERE image_path = %s
-            """, (upload_path, ))
+                WHERE upload_id = %s
+            """, (upload_id, ))
 
             return [{
                 "card_id": card_id,

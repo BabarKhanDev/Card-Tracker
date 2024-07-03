@@ -39,11 +39,13 @@ async function generate_card(
     return card_element
 }
 
-async function generate_uploaded_card(image_path) {
+async function generate_uploaded_card(image_path, upload_id) {
     let img_element = document.createElement("img")
     img_element.setAttribute("alt", "Uploaded card")
     img_element.setAttribute("class", "img_library card_image")
     img_element.setAttribute("src", image_path)
+    img_element.onclick = async () => generate_match_resolver(image_path, upload_id)
+
     return img_element
 }
 
@@ -89,7 +91,7 @@ function generate_big_card(imgsrc, alt) {
     let close_button = document.createElement("span")
     close_button.setAttribute("class", "big_card_close material-symbols-outlined")
     close_button.innerHTML = 'close'
-    close_button.onclick = () => close_big_card()
+    close_button.onclick = () => close_menus()
 
     big_card_container.appendChild(close_button)
 
@@ -97,8 +99,38 @@ function generate_big_card(imgsrc, alt) {
 
 }
 
-function close_big_card() {
-    let cards = document.querySelectorAll(".big_card_container")
+async function generate_match_resolver(imgsrc, upload_id) {
+
+    let match_resolver_container = document.createElement("div")
+    match_resolver_container.setAttribute("class", "match_resolver_container")
+
+    // First row - our image, takes up 2/3 of the page
+    let img_element = document.createElement("img")
+    img_element.className = "big_card_image"
+    img_element.src = imgsrc
+
+    // Second row - our matches, takes up 1/3 of the page
+    // match list can be a row element with each match in it
+    let matches_element = document.createElement("div")
+    matches_element.className = "matches_element"
+    let response = await fetch("/matches/" + upload_id)
+    let matches = await response.json()
+    for (const match of matches) {
+        matches_element.appendChild(await generate_card(match.card_id, false, false, false, false));
+    }
+
+    let close_button = document.createElement("span")
+    close_button.classList.add("big_card_close", "material-symbols-outlined")
+    close_button.innerHTML = 'close'
+    close_button.onclick = () => close_menus()
+
+    match_resolver_container.append(img_element, matches_element, close_button)
+    document.body.appendChild(match_resolver_container)
+
+}
+
+function close_menus() {
+    let cards = document.querySelectorAll(".match_resolver_container,.big_card_container")
     cards.forEach(card => {
         card.remove()
     })
@@ -107,7 +139,7 @@ function close_big_card() {
 document.onkeydown = function (evt) {
     evt = evt || window.event;
     if (evt.key === "Escape") {
-        close_big_card()
+        close_menus()
     }
 };
 
