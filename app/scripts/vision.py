@@ -179,9 +179,21 @@ def create_model_and_preprocess():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
+    # # Built in transforms are a bit weird, they crop the image rather than squeezing it
+    # # Create inference transforms
+    # preprocess = transforms.Compose([
+    #     weights.transforms()
+    # ])
+
     # Create inference transforms
+    def crop(image):
+        return transforms.functional.crop(image, 0, 0, 256, 256)
+
     preprocess = transforms.Compose([
-        weights.transforms()
+        transforms.ToTensor(),
+        transforms.Resize((512, 256), antialias=True),
+        transforms.Lambda(crop),
+        transforms.Normalize(0.5, 0.5)
     ])
 
     return model, preprocess, device
