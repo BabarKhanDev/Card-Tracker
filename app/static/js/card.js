@@ -1,19 +1,19 @@
 async function generate_card(
     id,
+    image_large,
+    image_small,
+    wishlist_count = 0,
+    library_count = 0,
     show_wishlist = true,
     delete_if_wishlist_zero = false,
     show_library = true,
-    delete_if_library_zero = false
 ) {
-
-    let response = await fetch(`/card/${id}`)
-    let card_details = await response.json()
 
     let img_element = document.createElement("img")
     img_element.setAttribute("alt", name + " card")
     img_element.setAttribute("class", "card_image")
-    img_element.setAttribute("src", card_details.image_url_small)
-    img_element.onclick = async () => generate_big_card(card_details.image_url_large, name + " card")
+    img_element.setAttribute("src", image_small)
+    img_element.onclick = async () => generate_big_card(image_large, name + " card")
 
     let card_element = document.createElement("div")
     card_element.setAttribute("class", "card")
@@ -21,17 +21,11 @@ async function generate_card(
     card_element.append(img_element)
 
     if (show_wishlist) {
-        let response = await fetch("/wishlist_id")
-        let wishlist = await response.json()
-        let wishlist_count = wishlist[id] || 0
-
         let wishlist_container = create_wishlist_container(id, delete_if_wishlist_zero, wishlist_count)
         card_element.append(wishlist_container)
     }
 
     if (show_library) {
-        let response = await fetch("/upload_count/" + id)
-        let library_count = (await response.json())[id] || 0
         let library_container = create_library_container(id, library_count)
         card_element.append(library_container)
     }
@@ -116,7 +110,18 @@ async function generate_match_resolver(imgsrc, upload_id) {
     let response = await fetch("/matches/" + upload_id)
     let matches = await response.json()
     for (const match of matches) {
-        matches_element.appendChild(await generate_card(match.card_id, false, false, false, false));
+        let response = await fetch("/card/" + match.card_id)
+        let card_details = await response.json()
+        matches_element.appendChild(await generate_card(
+            card_details.id,
+            card_details.image_url_large,
+            card_details.image_url_small,
+            0,
+            0,
+            false,
+            false,
+            false
+            ));
     }
 
     let close_button = document.createElement("span")

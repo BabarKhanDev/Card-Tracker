@@ -12,7 +12,13 @@ async function main() {
 
     // Build each card
     for (const card of card_data) {
-        let card_element = await generate_card(card.id)
+        let card_element = await generate_card(
+            card.id,
+            card.image_url_large,
+            card.image_url_small,
+            card.wishlist,
+            card.library
+        )
         card_library.appendChild(card_element)
     }
 }

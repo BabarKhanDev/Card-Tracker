@@ -37,12 +37,10 @@ async function main() {
     // Add the cards to their relevant section
     for (const card of wishlist_cards) {
         let wanted = wishlist_ids[card.id]
-        let wishlist_id = card.id
         let set_id = card.set_id
-        let card_element = await generate_card(card.id)
+        let card_element = await generate_card(card.id, card.image_url_large, card.image_url_small, wanted)
         document.getElementById(set_id + "_cards").appendChild(card_element)
     }
-
 }
 
 function create_section(series, set_id, body) {

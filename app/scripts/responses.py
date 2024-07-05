@@ -8,6 +8,8 @@ class CardDetails(dict):
     image_uri_small: str
     name: str
     set_id: str
+    wishlist: int
+    library: int
 
 
 class SetId(str):

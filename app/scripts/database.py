@@ -112,22 +112,39 @@ def get_set_details(config, set_id):
 def get_cards(config, set_id: str):
     with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
-            cur.execute("select * from sdk_cache.card where set_id = %s", (set_id,))
+            cur.execute("""
+                SELECT 
+                    c.id, 
+                    c.image_uri_large, 
+                    c.image_uri_small, 
+                    c.name, 
+                    c.set_id, 
+                    c.wishlist_quantity,
+                    COUNT(m.card_id) AS library
+                FROM sdk_cache.card c
+                LEFT JOIN user_data.match m ON c.id = m.card_id
+                WHERE c.set_id = %s
+                GROUP BY 
+                    c.id, 
+                    c.name
+            """, (set_id,))
             cards = cur.fetchall()
             return [{
-                "id": c[0],
-                "image_url_large": c[1],
-                "image_url_small": c[2],
-                "name": c[3],
-                "set_id": c[4]
-            } for c in cards]
+                "id": card_id,
+                "image_url_large": image_large,
+                "image_url_small": image_small,
+                "name": name,
+                "set_id": set_id,
+                "wishlist": wishlist,
+                "library": library
+            } for card_id, image_large, image_small, name, set_id, wishlist, library in cards]
 
 
 # Get the details of a card from its id
 def get_card_from_id(config, card_id: str):
     with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
-
+            # TODO update to send wishlist and library
             cur.execute("""
                 select id, set_id, image_uri_large, image_uri_small, name 
                 from sdk_cache.card 
