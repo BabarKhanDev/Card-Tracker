@@ -1,11 +1,13 @@
 import psycopg
-from pokemontcgsdk import Set
-from pokemontcgsdk import Card
-
+import multiprocessing as mp
 import requests
-import numpy as np
 from io import BytesIO
 from PIL import Image
+from pokemontcgsdk import Set
+from pokemontcgsdk import Card
+from pgvector.psycopg import register_vector
+
+from scripts.vision import create_model_and_preprocess
 
 
 def connect(config):
@@ -19,7 +21,8 @@ def connect(config):
 
 
 # Cache a set and all of its cards
-def cache_set(cur, s: Set, model, preprocess, device, serialised_data) -> None:
+# This does not calculate the features of the card
+def cache_set(cur, s: Set) -> None:
 
     # If the set is already cached then skip
     cur.execute("select count(*) from sdk_cache.set where id = %s", (s.id,))
@@ -33,39 +36,33 @@ def cache_set(cur, s: Set, model, preprocess, device, serialised_data) -> None:
     cards = Card.where(q=f'set.id:{s.id}')
     for card in cards:
 
-        # First try serialised data
-        if serialised_data is not None and card.id in serialised_data:
-            features = np.array(serialised_data[card.id]).astype(np.float32)
-            cur.execute(
-                "INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id, features) VALUES (%s, %s, %s, %s, %s, %s)",
-                (card.id, card.images.large, card.images.small, card.name, s.id, features,))
-            continue
+        cur.execute("""
+        INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) 
+        VALUES (%s, %s, %s, %s, %s)
+        """, (card.id, card.images.large, card.images.small, card.name, s.id,))
 
-        # Otherwise try generating data
-        try:
-            # We do not have features yet, calculate them
-            response = requests.get(card.images.large)
-            if response.status_code != 200:
-                raise Exception("Failed to download image")
 
-            image = Image.open(BytesIO(response.content)).convert('RGB')
-            batch = preprocess(image).unsqueeze(0).to(device)
-            features = model(batch).squeeze(0).cpu().detach().numpy()
+def calculate_features_of_all_cards(config, feature_calculation_bool: mp.Value) -> None:
+    model, preprocess, device = create_model_and_preprocess()
+    feature_calculation_bool.value = 1
 
-            # Cache the card details in the DB
-            cur.execute(
-                "INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id, features) VALUES (%s, %s, %s, %s, %s, %s)",
-                (card.id, card.images.large, card.images.small, card.name, s.id, features,))
+    with psycopg.connect(**config) as conn:
+        register_vector(conn)
+        with conn.cursor() as cur:
 
-        except Exception as e:
-            # Sometimes we cannot download the file, this will allow us to upload an entry without the details
-            # we will try again later
-            with open("../../setup.log", "a") as file:
-                file.write(f"Failed to download: {card.id}\n")
+            cur.execute("select id, image_uri_large from sdk_cache.card where features is NULL")
+            for card_id, url in cur.fetchall():
 
-            cur.execute(
-                "INSERT INTO sdk_cache.card (id, image_uri_large, image_uri_small, name, set_id) VALUES (%s, %s, %s, %s, %s)",
-                (card.id, card.images.large, card.images.small, card.name, s.id,))
+                response = requests.get(url)
+                if response.status_code != 200:
+                    continue
+
+                image = Image.open(BytesIO(response.content)).convert('RGB')
+                batch = preprocess(image).unsqueeze(0).to(device)
+                features = model(batch).squeeze(0).cpu().detach().numpy()
+                cur.execute("UPDATE sdk_cache.card SET features = %s WHERE id = %s ", (features, card_id))
+
+    feature_calculation_bool.value = 0
 
 
 # Get all sets
