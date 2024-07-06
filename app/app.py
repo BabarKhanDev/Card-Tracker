@@ -17,8 +17,8 @@ image_processing_count = mp.Value("i", 0)  # store the num of cards currently pr
 
 # Database Setup
 setup_database(config, tcg_api_key)
-feature_calculation_bool = mp.Value("i", 0)
-feature_process = mp.Process(target=calculate_features_of_all_cards, args=(config, feature_calculation_bool))
+calculating_features = mp.Value("i", 0)
+feature_process = mp.Process(target=calculate_features_of_all_cards, args=(config, calculating_features))
 feature_process.start()
 feature_process.join()
 
@@ -30,6 +30,16 @@ CORS(app)
 #################
 # JSON DELIVERY #
 #################
+
+# Get the status of the app
+# This could be information useful to the user
+@app.get("/status")
+def status():
+    return {
+        "cards_processing": image_processing_count.value,
+        "feature_calculation": calculating_features.value
+    }
+
 
 # Return a list containing details for every set
 # When we start the app we cache all sets in the database
@@ -124,9 +134,9 @@ def upload_cards():
         return Response({"error": "No image file in request"}, status=400)
 
     files = request.files.getlist("file")
+    image_processing_count.value += len(files)
     for file in files:
 
-        image_processing_count.value += 1
         image = Image.open(file)
         image = ImageOps.exif_transpose(image)  # fix rotation issue
         process = mp.Process(target=process_upload, args=(config, image, image_processing_count))

@@ -20,17 +20,13 @@ async function submit_data(){
         formData.append("file", files[i]);
     }
 
-    let response = await fetch("/upload_cards", {
+    await fetch("/upload_cards", {
         method:'POST',
         body: formData
     });
 
-    let status = await response.text();
-    console.log(status);
-    //TODO, do something with status
-    // We probably want to just close the menu
-
-}   
+    close_menus()
+}
 
 function upload_main(){
     // Update file count when files are selected

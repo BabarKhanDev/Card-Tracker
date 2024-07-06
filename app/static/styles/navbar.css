@@ -31,11 +31,11 @@ nav > *:not(a), nav> a > * {
     max-height:1.5em;
 }
 
-.option_button_container:hover, .option_button_container:hover > *{
+.clickable:hover, .clickable:hover > *{
     cursor:pointer;
 }
 
-.option_button_container:hover{
+.clickable:hover{
     background-color: var(--yellow-dark);
 }
 
@@ -61,4 +61,8 @@ nav > *:not(a), nav> a > * {
 
 .option_button_container > label {
     margin-right: 0.5em;
+}
+
+.hidden {
+    display:none
 }

@@ -42,9 +42,9 @@ def cache_set(cur, s: Set) -> None:
         """, (card.id, card.images.large, card.images.small, card.name, s.id,))
 
 
-def calculate_features_of_all_cards(config, feature_calculation_bool: mp.Value) -> None:
+def calculate_features_of_all_cards(config, calculating_features: mp.Value) -> None:
     model, preprocess, device = create_model_and_preprocess()
-    feature_calculation_bool.value = 1
+    calculating_features.value = 1
 
     with psycopg.connect(**config) as conn:
         register_vector(conn)
@@ -62,7 +62,7 @@ def calculate_features_of_all_cards(config, feature_calculation_bool: mp.Value) 
                 features = model(batch).squeeze(0).cpu().detach().numpy()
                 cur.execute("UPDATE sdk_cache.card SET features = %s WHERE id = %s ", (features, card_id))
 
-    feature_calculation_bool.value = 0
+    calculating_features.value = 0
 
 
 # Get all sets
