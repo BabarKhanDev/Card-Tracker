@@ -27,6 +27,8 @@ async function submit_data(){
 
     let status = await response.text();
     console.log(status);
+    //TODO, do something with status
+    // We probably want to just close the menu
 
 }   
 
@@ -37,8 +39,4 @@ function upload_main(){
         let fileCountElement = document.getElementById("file-count");
         fileCountElement.textContent = files.length + " files selected";
     });
-}
-
-async function rescan_library(){
-    alert("refreshing library")
 }

@@ -10,14 +10,14 @@ async function generate_card(
 ) {
 
     let img_element = document.createElement("img")
-    img_element.setAttribute("alt", name + " card")
-    img_element.setAttribute("class", "card_image")
-    img_element.setAttribute("src", image_small)
+    img_element.alt = name + " card"
+    img_element.className = "card_image"
+    img_element.src = image_small
     img_element.onclick = async () => generate_big_card(image_large, name + " card")
 
     let card_element = document.createElement("div")
-    card_element.setAttribute("class", "card")
-    card_element.setAttribute("wishlist_id", id)
+    card_element.className = "card"
+    card_element.wishlist_id = id
     card_element.append(img_element)
 
     if (show_wishlist) {
@@ -35,9 +35,9 @@ async function generate_card(
 
 async function generate_uploaded_card(image_path, upload_id) {
     let img_element = document.createElement("img")
-    img_element.setAttribute("alt", "Uploaded card")
-    img_element.setAttribute("class", "img_library card_image")
-    img_element.setAttribute("src", image_path)
+    img_element.alt = "Uploaded card"
+    img_element.className =  "img_library card_image"
+    img_element.src = image_path
     img_element.onclick = async () => generate_match_resolver(image_path, upload_id)
 
     return img_element
@@ -56,38 +56,34 @@ async function update_wishlist(id, amount, delete_if_wishlist_zero) {
     let wishlist = await response.json()
     let counter = document.getElementById("wishlist_count_" + id);
 
-    // if we unwishlist then the id will not be in the wishlist dictionary
+    // if we un-wishlist then id will not be in the wishlist dictionary
     if (id in wishlist) {
-        counter.innerHTML = "Wishlist: " + String(wishlist[id])
+        counter.innerText = "Wishlist: " + String(wishlist[id])
     } else {
         if (delete_if_wishlist_zero) {
             let card_container = document.querySelector('[wishlist_id=' + id + ']');
             card_container.remove()
         } else {
-            counter.innerHTML = "In Wishlist: 0"
+            counter.innerText = "In Wishlist: 0"
         }
-
     }
-
 }
 
 function generate_big_card(imgsrc, alt) {
 
-    let big_card_container = document.createElement("div")
-    big_card_container.setAttribute("class", "big_card_container")
-
     let img_element = document.createElement("img")
-    img_element.setAttribute("alt", alt)
-    img_element.setAttribute("class", "big_card_image")
-    img_element.setAttribute("src", imgsrc)
-    big_card_container.appendChild(img_element)
+    img_element.alt = alt
+    img_element.className = "big_card_image"
+    img_element.src = imgsrc
 
     let close_button = document.createElement("span")
-    close_button.setAttribute("class", "big_card_close material-symbols-outlined")
+    close_button.classList.add("big_card_close", "material-symbols-outlined")
     close_button.innerHTML = 'close'
     close_button.onclick = () => close_menus()
 
-    big_card_container.appendChild(close_button)
+    let big_card_container = document.createElement("div")
+    big_card_container.className = "big_card_container"
+    big_card_container.append(close_button, img_element)
 
     document.body.appendChild(big_card_container)
 
@@ -96,7 +92,7 @@ function generate_big_card(imgsrc, alt) {
 async function generate_match_resolver(imgsrc, upload_id) {
 
     let match_resolver_container = document.createElement("div")
-    match_resolver_container.setAttribute("class", "match_resolver_container")
+    match_resolver_container.className = "match_resolver_container"
 
     // First row - our image, takes up 2/3 of the page
     let img_element = document.createElement("img")
@@ -150,23 +146,23 @@ document.onkeydown = function (evt) {
 
 function create_wishlist_container(id, delete_if_wishlist_zero, wishlist_amount) {
     let wishlist_add = document.createElement("div")
-    wishlist_add.setAttribute("class", "wishlist_add")
-    wishlist_add.innerHTML = "+"
+    wishlist_add.className = "wishlist_add"
+    wishlist_add.innerText = "+"
     wishlist_add.onclick = async () => update_wishlist(id, "1")
 
     let wishlist_sub = document.createElement("div")
-    wishlist_sub.setAttribute("class", "wishlist_sub")
-    wishlist_sub.innerHTML = "-"
+    wishlist_sub.className = "wishlist_sub"
+    wishlist_sub.innerText = "-"
     wishlist_sub.onclick = async () => await update_wishlist(id, "-1", delete_if_wishlist_zero)
 
     let wishlist_count = document.createElement("div")
-    wishlist_count.setAttribute("class", "wishlist_count")
-    wishlist_count.setAttribute("id", "wishlist_count_" + id)
-    wishlist_count.innerHTML = "In Wishlist: " + wishlist_amount
+    wishlist_count.className = "wishlist_count"
+    wishlist_count.id = "wishlist_count_" + id
+    wishlist_count.innerText = "In Wishlist: " + wishlist_amount
 
     let wishlist_container = document.createElement("div")
-    wishlist_container.setAttribute("id", "wishlist_container-" + id)
-    wishlist_container.setAttribute("class", "wishlist_container")
+    wishlist_container.id = "wishlist_container-" + id
+    wishlist_container.className = "wishlist_container"
     wishlist_container.append(wishlist_sub, wishlist_count, wishlist_add)
 
     return wishlist_container
@@ -175,13 +171,13 @@ function create_wishlist_container(id, delete_if_wishlist_zero, wishlist_amount)
 function create_library_container(id, library_amount) {
 
     let library_count = document.createElement("div")
-    library_count.setAttribute("class", "library_count")
-    library_count.setAttribute("id", "library_count_" + id)
-    library_count.innerHTML = "In Library: " + library_amount
+    library_count.className = "library_count"
+    library_count.id = "library_count_" + id
+    library_count.innerText = "In Library: " + library_amount
 
     let library_container = document.createElement("div")
-    library_container.setAttribute("id", "wishlist_container-" + id)
-    library_container.setAttribute("class", "wishlist_container")
+    library_container.id = "wishlist_container-" + id
+    library_container.className = "wishlist_container"
     library_container.append(library_count)
 
     return library_container

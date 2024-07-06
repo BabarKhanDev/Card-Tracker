@@ -2,7 +2,7 @@ async function main() {
 
     // Set up page
     let url = window.location.href.split("/")
-    let set_name = url[url.length - 1]
+    let set_name = url.at(-1)
     let card_library = document.getElementById("cards")
 
     // Get the cards within the set
@@ -19,6 +19,6 @@ async function main() {
             card.wishlist,
             card.library
         )
-        card_library.appendChild(card_element)
+        card_library.append(card_element)
     }
 }

@@ -45,20 +45,19 @@ async function main() {
 
 function create_section(series, set_id, body) {
 
-    let series_section = document.createElement("section")
-    series_section.setAttribute("id", series)
-    series_section.setAttribute("class", "series_section")
-
     let series_cards_container = document.createElement("div")
-    series_cards_container.setAttribute("id", set_id + "_cards")
-    series_cards_container.setAttribute("class", "series_container")
+    series_cards_container.id = set_id + "_cards"
+    series_cards_container.className = "series_container"
 
     let series_label = document.createElement("h2")
-    series_label.innerHTML = series.replace(/\b\w/g, char => char.toUpperCase()) // This will replace the first character of each string with a capital letter
-    series_label.setAttribute("class", "series_label")
+    series_label.innerText = series.replace(/\b\w/g, char => char.toUpperCase()) // This will replace the first character of each string with a capital letter
+    series_label.className = "series_label"
 
-    series_section.appendChild(series_label)
-    series_section.appendChild(series_cards_container)
+    let series_section = document.createElement("section")
+    series_section.id = series
+    series_section.className = "series_section"
+    series_section.append(series_label, series_cards_container)
+
     body.appendChild(series_section)
 
 }
