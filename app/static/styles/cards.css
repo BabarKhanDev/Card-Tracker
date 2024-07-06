@@ -1,5 +1,5 @@
 /* big card preview */
-.big_card_container, .match_resolver_container{
+.big_card_container{
     position:fixed;
     top:0;
     left:0;
@@ -13,7 +13,6 @@
     flex-direction:column;
     animation: fadeIn 0.2s;
 }
-
 .big_card_close{
     position:absolute;
     left:1em;
@@ -28,9 +27,14 @@
 }
 
 .big_card_image{
-    max-height: calc(var(--height) * 3);
     max-width: calc(var(--width) * 3);
     margin-bottom:1em;
+}
+
+@media only screen and (max-width: 750px) {
+    .big_card_image{
+        width: 80%;
+    }
 }
 
 /* Card Page CSS */
@@ -53,8 +57,7 @@
     border-radius: 1em;
 }
 
-.card{
-    width: var(--width);
+.card {
     box-shadow: 5px 5px 10px 2px rgba(0,0,0,.8);
     margin-right:2em;
     margin-bottom:2em;
@@ -63,13 +66,14 @@
     background-color: var(--yellow);
 }
 
-.card_image{
-    height: var(--height);
+.card_image {
     width: var(--width);
-    -webkit-filter: brightness(100%);
-    filter: brightness(100%);
     border-bottom-left-radius: 1em;
     border-bottom-right-radius: 1em;
+}
+
+.card > .card_image {
+    width:100%;
 }
 
 .card:hover, .img_library:hover {
@@ -81,4 +85,23 @@
     -ms-transition: all 0.5s ease;
     transition: all 0.5s ease;
     cursor: pointer;
+}
+
+@media only screen and (max-width: 750px) {
+    #cards{
+        padding-left: 1em;
+        padding-right: 1em;
+    }
+
+    .card_image, .img_library, .card {
+        width: 48%;
+        margin-right:1%;
+        margin-left:1%;
+    }
+
+    .card > .card_image{
+        width: 100%;
+        margin: 0
+    }
+
 }
