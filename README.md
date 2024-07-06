@@ -4,9 +4,8 @@ I want to be able to take photos of my cards and have them tracked automatically
 I also want to be able to take photos of a binder of cards and have that uploaded automatically.
 
 # How it works
-You place photos of the cards in the directory /cards. 
 Right now cards need to be on a plain background.
-The app then uses a homography to warp the image so that the card fills a 300x400 box.
+The app uses a homography to warp the image so that the card fills a 300x400 box.
 The warped image is then passed into a VGG16 feature extractor and the feature is pickled and saved. 
 We compare these features to see if the cards are the same.
 
@@ -22,22 +21,10 @@ cp config.ini.example config.ini
 docker compose up -d --build
 ```
 
-Create the features for each of our cards
-```bash
-python3 -m venv venv
-. venv/bin/activate (linux) or ./venv/Scripts/activate (win)
-python3 -m pip install -e
-pip install -r requirements.txt
-cd app/scripts
-python3 setup.py
-```
-
-
 # TODO
-- [x] Allow users to view cards
-- [x] Allow users to wishlist cards
-- [ ] Allow users to scan their cards in
-  
-The code for this exists, I need to hook it into the front end
-- [ ] Allow users to resolve false negative/positive matches
-- [ ] Allow users to scan a binder of cards in
+- [x] Explore all cards released
+- [x] Wishlist cards
+- [x] Scan your cards in and have them automatically classified
+- [ ] Resolve false negative/positive matches
+- [ ] Scan a binder of cards in
+- [ ] Create decks of cards
