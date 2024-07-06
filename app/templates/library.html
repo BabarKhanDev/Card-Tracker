@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/universal.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/navbar.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/cards.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/library.css') }}" />
+
 
     <script src="{{ url_for('static',filename='js/settings.js') }}"></script>
     <script src="{{ url_for('static',filename='js/card.js') }}"></script>
@@ -30,21 +34,18 @@
 
     <section id = "settings">
 
-        <label for="card_scale">Scale </label>
-        <input type="range" id="card_scale" name="card_scale" min="0" max="5"  onChange="update_card_scale(this.value);">
-        
-        <label for="card_padding">Padding </label>
-        <input type="range" id="card_padding" name="card_padding" min="1" max="15"  onChange="update_card_padding(this.value);">
+{#        <label for="card_scale">Scale </label>#}
+{#        <input type="range" id="card_scale" name="card_scale" min="0" max="5"  onChange="update_card_scale(this.value);">#}
+{#        #}
+{#        <label for="card_padding">Padding </label>#}
+{#        <input type="range" id="card_padding" name="card_padding" min="1" max="15"  onChange="update_card_padding(this.value);">#}
 
-        <label id="upload_label" for ="create_upload_menu" > Upload Cards </label>
-        <button type="button" id="create_upload_menu" onClick="show_upload_menu();" class="button"> 
-            <img src="{{ url_for('static',filename='svg/upload-file.svg') }}">
-        </button>
-
-        <label id="refresh_label" for ="refresh_library" > Rescan Library </label>
-        <button type="button" id="refresh_library" onClick="rescan_library();" class="button"> 
-            <img src="{{ url_for('static',filename='svg/refresh.svg') }}">
-        </button>
+        <div class="option_button_container"  onClick="show_upload_menu();">
+            <label id="upload_label" for ="create_upload_menu" > Upload Cards </label>
+            <button type="button" id="create_upload_menu" class="button">
+                <span class="material-symbols-outlined">upload</span>
+            </button>
+        </div>
 
     </section>
 

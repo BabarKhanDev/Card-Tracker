@@ -1,0 +1,22 @@
+.wishlist_container, .library_container{
+    display:flex;
+    justify-content:center;
+}
+
+.wishlist_add, .wishlist_sub, .wishlist_count, .library_add, .library_sub, .library_count{
+    width: calc(var(--width) / 2);
+    font-size: calc(var(--text-size)*1.1);
+    text-align:center;
+    margin-right:0.5em;
+    margin-left:0.5em;
+}
+.wishlist_add, .wishlist_sub, .library_add, .library_sub{
+    width: calc(var(--width) / 5);
+    border-radius:3px;
+}
+.wishlist_add:hover, .library_add:hover{
+    background-color: #80FFA9;
+}
+.wishlist_sub:hover, .library_sub:hover {
+    background-color: #FF5D59;
+}

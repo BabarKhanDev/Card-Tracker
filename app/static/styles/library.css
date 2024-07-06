@@ -1,0 +1,46 @@
+/* Upload image menu */
+#upload_menu_container{
+    position:fixed;
+    top:0;
+    left:0;
+    min-width:100%;
+    min-height:100vh;
+
+    display:flex;
+    align-items:center;
+    flex-direction:column;
+
+    background-color:rgba(0, 0, 0, 0.923);
+
+    color:white;
+    padding:1em;
+    animation: fadeIn 0.2s;
+}
+
+#upload_menu_container *{
+    margin-bottom:1em;
+}
+
+.button:hover{
+    cursor:pointer;
+    filter: brightness(50%);
+}
+#upload_menu_container > .button{
+    background-color:#80FFA9;
+    border-radius:2px;
+}
+
+#upload_menu_container > .button_upload{
+    min-width:10em;
+    min-height:2em;
+
+    font-size:1.2em;
+
+    box-shadow: 2px 4px #888888;
+}
+
+/* Match Resolving*/
+.matches_element {
+    display:flex;
+    flex-direction: row;
+}

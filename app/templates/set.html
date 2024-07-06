@@ -6,7 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/universal.css') }}" />
-    
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/navbar.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/cards.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/set.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/wishlist.css') }}" />
+
     <script src="{{ url_for('static',filename='js/settings.js') }}"></script>
     <script src="{{ url_for('static',filename='js/card.js') }}"></script>
     <script src="{{ url_for('static',filename='js/build_set.js') }}"></script>
@@ -27,15 +31,15 @@
         <a href = /wishlist><h3>Wishlist</h3></a>
     </nav>
 
-    <section id = "settings">
-
-        <label for="card_scale">Scale </label>
-        <input type="range" id="card_scale" name="card_scale" min="0" max="5"  onChange="update_card_scale(this.value);">
-        
-        <label for="card_padding">Padding </label>
-        <input type="range" id="card_padding" name="card_padding" min="1" max="15"  onChange="update_card_padding(this.value);">
-
-    </section>
+{#    <section id = "settings">#}
+{##}
+{#        <label for="card_scale">Scale </label>#}
+{#        <input type="range" id="card_scale" name="card_scale" min="0" max="5"  onChange="update_card_scale(this.value);">#}
+{#        #}
+{#        <label for="card_padding">Padding </label>#}
+{#        <input type="range" id="card_padding" name="card_padding" min="1" max="15"  onChange="update_card_padding(this.value);">#}
+{##}
+{#    </section>#}
 
     <section id = "cards">
 
