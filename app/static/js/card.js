@@ -7,13 +7,16 @@ async function generate_card(
     show_wishlist = true,
     delete_if_wishlist_zero = false,
     show_library = true,
+    generate_big_card = true,
 ) {
 
     let img_element = document.createElement("img")
     img_element.alt = name + " card"
     img_element.className = "card_image"
     img_element.src = image_small
-    img_element.onclick = async () => generate_big_card(image_large, name + " card")
+    if (generate_big_card) {
+        img_element.onclick = async () => generate_big_card(image_large, name + " card")
+    }
 
     let card_element = document.createElement("div")
     card_element.className = "card"
@@ -108,7 +111,7 @@ async function generate_match_resolver(imgsrc, upload_id) {
     for (const match of matches) {
         let response = await fetch("/card/" + match.card_id)
         let card_details = await response.json()
-        matches_element.appendChild(await generate_card(
+        let potential_match = await generate_card(
             card_details.id,
             card_details.image_url_large,
             card_details.image_url_small,
@@ -116,8 +119,11 @@ async function generate_match_resolver(imgsrc, upload_id) {
             0,
             false,
             false,
+            false,
             false
-            ));
+        )
+        potential_match.onclick = () => submit_match(upload_id, card_details.id)
+        matches_element.appendChild(potential_match);
     }
 
     let close_button = document.createElement("span")
@@ -169,7 +175,6 @@ function create_wishlist_container(id, delete_if_wishlist_zero, wishlist_amount)
 }
 
 function create_library_container(id, library_amount) {
-
     let library_count = document.createElement("div")
     library_count.className = "library_count"
     library_count.id = "library_count_" + id
@@ -181,4 +186,18 @@ function create_library_container(id, library_amount) {
     library_container.append(library_count)
 
     return library_container
+}
+
+async function submit_match(upload_id, card_id) {
+    let formData = new FormData()
+    formData.append('upload_id', upload_id)
+    formData.append('card_id', card_id)
+
+    // TODO make this endpoint
+    await fetch("/confirm_match", {
+        method: 'POST',
+        body: formData
+    })
+
+    close_menus()
 }
