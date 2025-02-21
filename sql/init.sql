@@ -56,7 +56,7 @@ CREATE SCHEMA IF NOT EXISTS user_data
 CREATE TABLE IF NOT EXISTS user_data.upload
 (
     image_path text COLLATE pg_catalog."default" NOT NULL,
-    id integer NOT NULL DEFAULT nextval('user_data.upload_id_seq'::regclass),
+    id serial NOT NULL,
     CONSTRAINT upload_pkey PRIMARY KEY (id)
 )
 
@@ -70,8 +70,8 @@ ALTER TABLE IF EXISTS user_data.upload
 CREATE TABLE IF NOT EXISTS user_data.match
 (
     card_id text COLLATE pg_catalog."default" NOT NULL,
-    id integer NOT NULL DEFAULT nextval('user_data.match_id_seq'::regclass),
-    upload_id integer NOT NULL DEFAULT nextval('user_data.match_upload_id_seq'::regclass),
+    id serial NOT NULL,
+    upload_id serial NOT NULL,
     CONSTRAINT match_pkey PRIMARY KEY (id),
     CONSTRAINT card_id FOREIGN KEY (card_id)
         REFERENCES sdk_cache.card (id) MATCH SIMPLE
