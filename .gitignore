@@ -6,3 +6,4 @@ config.ini
 .idea/
 venv/
 *.pyc
+.DS_Store
