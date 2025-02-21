@@ -7,6 +7,7 @@ from scripts.database import cache_set
 
 
 def setup_database(config, tcg_api_key):
+    print("Beginning data caching")
     with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
             cur.execute('CREATE EXTENSION IF NOT EXISTS vector')
