@@ -3,7 +3,9 @@
 API_key=
 
 [postgresql]
-host=localhost
+# If you want to run in a terminal, then set host=0.0.0.0
+# If you want to run in docker, then set host=db
+host=db
 dbname=cards
 user=cards
 password=heresapassword
