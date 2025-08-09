@@ -7,7 +7,7 @@ from scripts.database import cache_set
 
 
 def setup_database(config, tcg_api_key):
-    print("Beginning data caching")
+    print("Beginning Data Caching")
     with psycopg.connect(**config) as conn:
         with conn.cursor() as cur:
             cur.execute('CREATE EXTENSION IF NOT EXISTS vector')
@@ -21,3 +21,5 @@ def setup_database(config, tcg_api_key):
             print("Successfully Cached All Sets")
 
         conn.commit()
+
+    print("Data Caching Complete")

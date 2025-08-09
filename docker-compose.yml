@@ -29,5 +29,13 @@ services:
     volumes:
       - ./config.ini:/config.ini
 
+  card_cacher:
+    build: card_cacher
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./config.ini:/config.ini
+
+
 volumes:
   dbvolume:

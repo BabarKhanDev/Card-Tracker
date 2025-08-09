@@ -5,27 +5,18 @@ import multiprocessing as mp
 
 from scripts.config import load_tcg_api_key, load_database_config
 from scripts.vision import process_upload
-from scripts.setup import setup_database
 from scripts.responses import WishlistResponse, AllSetsResponse, AllCardsResponse, CardDetailsResponse, LibraryResponse
 from scripts.database import (get_cards, get_sets, get_wishlist, add_to_wishlist, get_library, get_card_from_id,
-                              calculate_features_of_all_cards, get_set_details, get_match_counts, get_matches)
+                              get_set_details, get_match_counts, get_matches, calculate_features_of_all_cards)
 
 # App Configuration
 config = load_database_config("config.ini")
 tcg_api_key = load_tcg_api_key("config.ini")
-image_processing_count = mp.Value("i", 0)  # store the num of cards currently processing
-
-# Database Setup
-setup_database(config, tcg_api_key)
-calculating_features = mp.Value("i", 0)
-feature_process = mp.Process(target=calculate_features_of_all_cards, args=(config, calculating_features))
-feature_process.start()
-feature_process.join()
+image_processing_count = mp.Value("i", 0)
 
 # Set up flask
 app = Flask(__name__)
 CORS(app)
-
 
 #################
 # JSON DELIVERY #
@@ -36,8 +27,7 @@ CORS(app)
 @app.get("/status")
 def status():
     return {
-        "cards_processing": image_processing_count.value,
-        "feature_calculation": calculating_features.value
+        "cards_processing": image_processing_count.value
     }
 
 
