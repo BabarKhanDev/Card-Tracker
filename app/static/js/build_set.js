@@ -8,7 +8,7 @@ async function main() {
     // Get the cards within the set
     let response_cards = await fetch("/set/" + set_name)
     let card_data = await response_cards.json()
-    card_data.sort((a, b) => a.id - b.id)
+    card_data.sort((a, b) => a.id.slice(a.set_id.length + 1) - b.id.slice(b.set_id.length + 1))
 
     // Build each card
     for (const card of card_data) {
