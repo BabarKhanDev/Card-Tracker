@@ -1,5 +1,5 @@
 async function main() {
-
+    console.log("test")
     let body = document.getElementById("sets")
     let response = await fetch("/all_sets")
     let set_data = await response.json();
@@ -8,7 +8,7 @@ async function main() {
     // We will also loop through all sets and create icons for them
     let found_series = new Set()
 
-    Object.entries(set_data).forEach((entry) => {
+    Object.entries(set_data.reverse()).forEach((entry) => {
         let series = entry[1]["series"]
 
         if (!(found_series.has(series))) {
@@ -52,13 +52,18 @@ function make_set_button(image_url, name, series, id) {
     set_element.src = image_url
 
     let set_text = document.createElement("p")
-    set_text.className = "set_text"
-    set_text.innerText = name
+    //set_text.className = "set_text"
+    //set_text.innerText = name
+
+    let background = document.createElement("div")
+    background.className = "set_background"
+    background.append(set_element)
 
     let set_container = document.createElement("a")
     set_container.className = "set_container"
     set_container.href = "../explore/" + id
-    set_container.append(set_element, set_text)
+    set_container.append(background)
+    //set_container.append(set_text)
 
     let series_container = document.getElementById(series + "_sets")
     series_container.appendChild(set_container)

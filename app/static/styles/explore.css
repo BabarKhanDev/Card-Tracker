@@ -1,7 +1,7 @@
 /* Set Page CSS */
 .set_image{
-    max-height: calc(var(--width)/2);
-    max-width:calc(var(--height)/2);
+    max-height: 75%;
+    max-width: 75%;
 }
 
 .set_text{
@@ -19,6 +19,16 @@
     padding:1em;
     margin-right:1em;
     margin-bottom:1em;
+}
+
+.set_background{
+    height: 100%;
+    width: 100%;
+    border-radius: 4px;
+    background-color: var(--bg-light);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #sets{

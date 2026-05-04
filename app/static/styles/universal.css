@@ -1,12 +1,14 @@
 :root {
     --width: 250px;
-    --height: 350px;
+    --height: 500px;
     --text-size: 1em;
     --padding: 5em;
     --yellow: #f5cc01;
     --yellow-main: #fedf43;
     --yellow-bright: #fffbe6;
     --yellow-dark: #9d8301;
+    --bg-light: #ffffff;
+    --bg-dark: #000000;
 }
 
 /* Google Fonts */
@@ -27,17 +29,16 @@ body {
     font-family: 'Roboto', sans-serif;
     margin:0;
     padding:0;
-    background-color: var(--yellow-bright)
+    background-color: var(--bg-dark);
+    color: var(--bg-light);
 }
 
 a {
     text-decoration: none;
-    color:black;
+    color: var(--bg-light);
 }
 
 .button {
-    color:black;
-
     display: flex;
     justify-content: center;
     align-items: center;
