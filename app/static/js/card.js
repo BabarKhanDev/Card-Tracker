@@ -165,7 +165,7 @@ function create_wishlist_container(id, delete_if_wishlist_zero, wishlist_amount)
     let wishlist_count = document.createElement("div")
     wishlist_count.className = "wishlist_count"
     wishlist_count.id = "wishlist_count_" + id
-    wishlist_count.innerText = "In Wishlist: " + wishlist_amount
+    wishlist_count.innerText = "Wishlist: " + wishlist_amount
 
     let wishlist_container = document.createElement("div")
     wishlist_container.id = "wishlist_container-" + id
@@ -179,7 +179,7 @@ function create_library_container(id, library_amount) {
     let library_count = document.createElement("div")
     library_count.className = "library_count"
     library_count.id = "library_count_" + id
-    library_count.innerText = "In Library: " + library_amount
+    library_count.innerText = "Library: " + library_amount
 
     let library_container = document.createElement("div")
     library_container.id = "wishlist_container-" + id
