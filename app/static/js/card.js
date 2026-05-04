@@ -7,14 +7,15 @@ async function generate_card(
     show_wishlist = true,
     delete_if_wishlist_zero = false,
     show_library = true,
-    generate_big_card = true,
+    can_generate_big_card = true,
 ) {
 
     let img_element = document.createElement("img")
     img_element.alt = name + " card"
     img_element.className = "card_image"
     img_element.src = image_small
-    if (generate_big_card) {
+    
+if (can_generate_big_card) {
         img_element.onclick = async () => generate_big_card(image_large, name + " card")
     }
 
