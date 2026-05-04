@@ -7,6 +7,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
 COPY ./requirements.txt /tmp
 RUN pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
 RUN rm /tmp/requirements.txt
+
+WORKDIR /app
 COPY . .
 
 EXPOSE 8080

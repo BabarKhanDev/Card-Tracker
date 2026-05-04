@@ -1,8 +1,7 @@
-version: "3"
-
 services:
   db:
     hostname: db
+    restart: unless-stopped
     image: pgvector/pgvector:pg16
     environment:
       POSTGRES_USER: cards
@@ -16,6 +15,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: cards@email.com
       PGADMIN_DEFAULT_PASSWORD: heresapassword
@@ -24,13 +24,18 @@ services:
 
   frontend:
     build: app
+    restart: unless-stopped
+    environment:
+      FLASK_DEBUG: 1
     ports:
-      - "8080:8080"
+      - "8082:8080"
     volumes:
-      - ./config.ini:/config.ini
+      - ./config.ini:/app/config.ini
+      - ./app:/app
 
   card_cacher:
     build: card_cacher
+    restart: unless-stopped
     ports:
       - "5001:5001"
     volumes:
