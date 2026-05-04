@@ -10,10 +10,9 @@
     align-items:center;
     flex-direction:column;
 
-    background-color:rgba(0, 0, 0, 0.923);
+    background-color:var(--bg-dark);
     backdrop-filter: blur(6px);
-
-    color:white;
+    color: var(--bg-light);
     padding:1em;
     animation: fadeIn 0.2s;
 }
@@ -25,10 +24,11 @@
 #upload_menu_container > .button_upload {
     background-color: var(--yellow-main);
     font-size:1.2em;
-    border-radius:1em;
+    border-radius:10px;
     box-shadow: 5px 5px 10px 2px rgba(0,0,0,.8);
     min-width:10em;
     min-height:2em;
+    color: var(--bg-dark);
 }
 
 #upload_menu_container > .button_upload:hover {

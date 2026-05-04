@@ -25,10 +25,14 @@ nav > *:not(a), nav> a > * {
     display:flex;
     align-items:center;
     margin-bottom:1em;
+    justify-content: center;
+    font-size: 1.1em;
+    font-weight: 700;
+    color: var(--bg-dark);
 }
 
 #settings *{
-    max-height:1.5em;
+    max-height:2em;
 }
 
 .clickable:hover, .clickable:hover > *{
@@ -47,7 +51,7 @@ nav > *:not(a), nav> a > * {
     margin-left:0.2em;
 
     background-color: var(--yellow-main);
-    border-radius:1em;
+    border-radius:10px;
     box-shadow: 5px 5px 10px 2px rgba(0,0,0,.8);
     padding:1em;
     font-size:1em;
