@@ -28,3 +28,4 @@ docker compose up -d --build
 - [ ] Resolve false negative/positive matches
 - [ ] Scan a binder of cards in
 - [ ] Create decks of cards
+- [ ] Create splat of the card videos that are uploaded 
